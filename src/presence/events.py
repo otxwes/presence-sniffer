@@ -13,7 +13,13 @@ from dataclasses import dataclass, field, replace
 from typing import Optional
 
 # Coarse device classes inferred from BLE advertised names / OUI prefixes.
-DEVICE_CLASSES = ("smartphone", "wearable", "hearable", "laptop", "access_point", "unknown")
+# Surveillance-adjacent classes (body_camera/alpr/tracker/drone/incident) are
+# proxy labels for *hardware/event feeds*, never for people — see RESEARCH.md §5.
+DEVICE_CLASSES = (
+    "smartphone", "wearable", "hearable", "laptop", "access_point",
+    "body_camera", "alpr", "drone", "tracker", "incident",
+    "unknown",
+)
 
 
 def _rssi_to_proximity(rssi: float) -> float:

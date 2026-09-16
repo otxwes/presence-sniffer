@@ -66,7 +66,77 @@ def test_simulator_produces_plausible_events():
         assert ev.device_class
 
 
-def test_aggregator_folds_events_into_snapshot():
+def test_surveillance_device_classes_are_registered():
+    from presence.events import DEVICE_CLASSES
+
+    for cls in ("body_camera", "alpr", "drone", "tracker", "incident"):
+        assert cls in DEVICE_CLASSES
+
+
+def test_signal_feature_stack_counts_and_unknowns():
+    from presence.sensors.crowd_proxy import (
+        FEAT_ORDER,
+        SignalFeatures,
+        build_feature_stack,
+    )
+    from presence.sensors.crowd_proxy import SurveillanceContext
+
+    base_ts = 1_757_971_200  # arbitrary epoch seconds
+    evs = [
+        PresenceEvent("d1", "wifi", device_class="body_camera", rssi=-40, ts=base_ts),
+        PresenceEvent("d2", "wifi", device_class="body_camera", rssi=-60, ts=base_ts - 5),
+        PresenceEvent("d3", "crowd", device_class="incident", rssi=-100, ts=base_ts - 1),
+        PresenceEvent("d4", "wifi", device_class="smartphone", rssi=-35, ts=base_ts - 2),
+    ]
+    feats = build_feature_stack(evs, context=SurveillanceContext(
+        known_alpr_distance_m=120.0,
+        helicopter_distance_m=2400.0,
+        dispatch_activity=0.4,
+    ))
+    assert feats.oui_match == 2
+    assert feats.ssid_match == 1
+    assert feats.surveillance_event_count == 3
+    assert feats.rssi_max == -35.0
+    assert feats.rssi_delta == pytest.approx(-40.0 - (-60.0))  # body cams only
+    assert 0.0 <= feats.mac_persistence <= 1.0
+    assert 0.0 <= feats.time_of_day_frac <= 1.0
+    assert feats.known_alpr_distance_m == 120.0
+    assert feats.dispatch_activity == 0.4
+
+    vec = feats.to_vector()
+    assert len(vec) == len(FEAT_ORDER)
+
+
+def test_signal_feature_stack_empty_is_all_unknowns():
+    from presence.sensors.crowd_proxy import build_feature_stack
+
+    feats = build_feature_stack([])
+    assert feats.surveillance_event_count == 0
+    assert feats.rssi_max == -101.0
+    assert feats.mac_persistence == -1.0
+    assert feats.band_balance == -1.0
+    assert feats.time_of_day_frac == -1.0
+    assert feats.known_alpr_distance_m == -1.0
+    assert feats.helicopter_distance_m == -1.0
+    assert feats.dispatch_activity == -1.0
+
+
+def test_crowd_proxy_sensor_is_bus_wired_but_unimplemented():
+    import asyncio
+
+    from presence.bus import EventBus
+    from presence.sensors.crowd_proxy import CrowdProxySensor
+
+    async def scenario():
+        sensor = CrowdProxySensor(EventBus())
+        try:
+            await sensor.run()
+            raise AssertionError("should have raised NotImplementedError")
+        except NotImplementedError:
+            pass
+
+    asyncio.run(scenario())
+
     from presence.aggregator import Aggregator
 
     async def scenario():

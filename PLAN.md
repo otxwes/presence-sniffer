@@ -46,9 +46,20 @@ bridged over its hotspot (OSC is network-transparent).
 
 - **Phase 0 — dev environment:** project scaffold, event model, event bus, simulator,
   OSC bridge, EPS in Ableton via Max for Live. *(this scaffold)*
-- **Phase 1 — sensors:** BLE adverts via ESP32 → daemon; Wi-Fi monitor mode on Pi dongle.
+- **Phase 1 — sensors:** BLE adverts via ESP32 → daemon; Wi-Fi monitor mode on Pi dongle;
+  **ADS-B helicopter-Proximity path (OpenSky) is the highest-reliability
+  police-adjacent-proxy add** — it's Software-only and rides the existing
+  `sensors/` interface via `crowd_proxy.py`.
 - **Phase 2 — event model:** normalize to presence events: proximity bucket, churn
   (new devices/sec), density, band balance; RF "warmth" metric.
+  **Surveillance-proxy feature stack** (`presence.sensors.crowd_proxy.SignalFeatures`):
+  per-device/per-window row with OUI matches, SSID matches, RSSI delta/max,
+  MAC persistence, band balance, time-of-day, distance-to-known-ALPR
+  (deflock.me), helicopter proximity (OpenSky), dispatch activity
+  (Broadcastify-weak-label training path); sklearn lr / GBDT on top planned.
+- **Phase 2b:** outputs per device-class, including `surveillance_proxy`
+  composite (eye-spy-style score with decay/cooldown), never a binary
+  "police detected" flag.
 - **Phase 3 — Ableton integration:** OSC → Max4Live macros:
   - proximity → volume / filter cutoff sweep
   - new-device churn → transient artifacts / bitcrush depth
@@ -60,7 +71,10 @@ bridged over its hotspot (OSC is network-transparent).
 
 ## Key risks / notes
 
-1. Specific "police presence" is not detectable — treat as crowd-density proxy only.
+1. Police presence is **not directly detectable** — the system reports
+   probabilistic proxies (device classes with confidence, e.g. body cameras,
+   ALPRs, law-enforcement helicopters) never identity. Framing in UI/audio
+   copy must reflect that. See RESEARCH.md §5 for the proxy-layer plan.
 2. Build against the simulator first; live data requires external radios.
 3. Pi USB Wi-Fi dongles are finicky; verify AR9271 chipset before buying.
 4. Pi 5 needs ~15W: good 5V/3.2A+ PD power bank + trigger board.
