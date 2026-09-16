@@ -154,3 +154,128 @@ def test_crowd_proxy_sensor_is_bus_wired_but_unimplemented():
     assert snap.density == 2
     assert snap.churn == pytest.approx(2 / Aggregator.WINDOW_SECONDS)
     assert snap.proximity == pytest.approx(ev1.proximity)
+
+
+# --- Phase 2b: SurveillanceScorer -------------------------------------------
+
+
+def _feed_and_tick(clock, scorer, events_per_tick, n_ticks):
+    """Advance the fake clock, publish event batches, tick the scorer.
+
+    Events are re-stamped with the fake clock so window pruning behaves
+    as it does in production (real clock == event ts).
+    """
+    import asyncio
+    from dataclasses import replace
+
+    async def scenario():
+        for evs in events_per_tick:
+            clock.advance(0.5)
+            for ev in evs:
+                await scorer.on_event(replace(ev, ts=clock()))
+            await scorer.on_snapshot(None)
+
+    asyncio.run(scenario())
+
+
+def _make_scorer():
+    """Scorer + fake clock (advances in TICK_SECONDS steps)."""
+    from presence.bus import EventBus
+    from presence.threat import SurveillanceScorer
+
+    class FakeClock:
+        def __init__(self):
+            self.t = 1_000_000.0
+
+        def __call__(self):
+            return self.t
+
+        def advance(self, dt):
+            self.t += dt
+
+    received = []
+
+    async def _capture(t):
+        received.append(t)
+
+    bus = EventBus()
+    bus.subscribe("threat", _capture)
+    clock = FakeClock()
+    scorer = SurveillanceScorer(bus, clock=clock)
+    return clock, scorer, received
+
+
+def test_scorer_zero_when_no_surveillance_events():
+    clock, scorer, received = _make_scorer()
+    ds = lambda: PresenceEvent("d", "sim", device_class="smartphone", rssi=-30)
+    _feed_and_tick(clock, scorer, [[ds(), ds()], [ds()]], 2)
+    assert all(r.score == 0.0 and r.raw == 0.0 and not r.contributing for r in received)
+
+
+def test_scorer_rises_with_close_body_camera_and_saturates_density():
+    clock, scorer, received = _make_scorer()
+    bc = lambda rid, rssi: PresenceEvent(rid, "wifi", device_class="body_camera", rssi=rssi)
+    events = [[bc("a", -35), bc("b", -40), bc("c", -50), bc("d", -60), bc("e", -70)]]
+    _feed_and_tick(clock, scorer, events, 1)
+    snap = received[-1]
+    w = scorer.weights
+    expected = w.proximity * bc("x", -35).proximity + w.density * 1.0
+    assert snap.raw == pytest.approx(expected)
+    assert snap.score == pytest.approx(snap.raw)
+    assert snap.contributing == {"body_camera": 5}
+
+
+def test_scorer_holds_ceiling_through_cooldown_then_decays():
+    import math
+
+    from presence.threat import SurveillanceScorer
+
+    clock, scorer, received = _make_scorer()
+    spike = [PresenceEvent("a", "wifi", device_class="alpr", rssi=-25)]  # prox 0.9375
+    _feed_and_tick(clock, scorer, [spike], 1)
+    peak = received[-1].score
+    assert peak >= scorer.TRIGGER
+    # mid-cooldown (10s in): ceiling held, cooldown fraction still live
+    _feed_and_tick(clock, scorer, [[] for _ in range(20)], 20)
+    assert received[-1].score == pytest.approx(peak)
+    assert received[-1].cooldown == pytest.approx((12.0 - 10.0) / 12.0)
+    # after cooldown: exponential decay at exp(-0.5/TAU) per tick
+    _feed_and_tick(clock, scorer, [[] for _ in range(10)], 10)  # 5s past expiry
+    tail = received[-10:]
+    assert tail[-1].score < tail[0].score, "must decay once cooldown expires"
+    for prev, cur in zip(tail, tail[1:]):
+        if prev.score > scorer.TRIGGER and prev.cooldown == 0.0:
+            assert cur.score == pytest.approx(prev.score * math.exp(-0.5 / SurveillanceScorer.TAU), rel=1e-6)
+
+
+def test_scorer_is_deterministic():
+    clock, scorer, received = _make_scorer()
+    events = [
+        [PresenceEvent("h", "wifi", device_class="drone", rssi=-45)],
+        [],
+        [PresenceEvent("t", "wifi", device_class="tracker", rssi=-55)],
+    ]
+    _feed_and_tick(clock, scorer, [events[0] + events[2]], 1)
+    first = received[-1].to_dict()
+
+    clock2, scorer2, received2 = _make_scorer()
+    _feed_and_tick(clock2, scorer2, [events[0] + events[2]], 1)
+    second = received2[-1].to_dict()
+
+    first.pop("ts"), second.pop("ts")
+    assert first == second
+
+
+def test_scorer_publishes_and_resets():
+    clock, scorer, received = _make_scorer()
+    _feed_and_tick(
+        clock,
+        scorer,
+        [[PresenceEvent("h", "wifi", device_class="drone", rssi=-35)]],
+        1,
+    )
+    assert received, "scorer must publish a ThreatSnapshot per tick"
+    assert 0.0 <= received[-1].score <= 1.0
+    scorer.reset()
+    assert scorer._held == 0.0 and not scorer._events
+

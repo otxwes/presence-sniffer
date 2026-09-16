@@ -16,6 +16,7 @@ from .bus import EventBus
 from .events import PresenceEvent, PresenceSnapshot
 from .osc_bridge import OscBridge
 from .simulator import DeviceSimulator
+from .threat import SurveillanceScorer
 
 SNAPSHOT_INTERVAL = 0.5  # seconds; feeds audio/viz at 2 Hz
 
@@ -88,6 +89,10 @@ async def main() -> None:
     osc = OscBridge(host=args.osc_host, port=args.osc_port)
     bus.subscribe("event", aggregator.on_event)
     bus.subscribe("snapshot", osc.on_snapshot)
+    scorer = SurveillanceScorer(bus)
+    bus.subscribe("event", scorer.on_event)
+    bus.subscribe("snapshot", scorer.on_snapshot)
+    bus.subscribe("threat", osc.on_threat)
 
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
