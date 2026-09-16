@@ -75,6 +75,34 @@ bridged over its hotspot (OSC is network-transparent).
    probabilistic proxies (device classes with confidence, e.g. body cameras,
    ALPRs, law-enforcement helicopters) never identity. Framing in UI/audio
    copy must reflect that. See RESEARCH.md §5 for the proxy-layer plan.
+
+### Phase 1 hardware list (finalized 2026-09-15 — buy in this order)
+
+| Item | ~Price | Feeds which code |
+|---|---|---|
+| Seeed XIAO ESP32-S3 ×2 | $28 | edge sensor (WiFi promisc + BLE scan), flock-you firmware family; ×1 spare |
+| Raspberry Pi 5 (4GB) + case + 128GB SD | $95 | aggregator host (`presence.aggregator`) |
+| ALFA AWUS036ACHM (AR9271) | $25 | WiFi monitor mode (`WifiSensor`) |
+| RTL-SDR Blog V4 | $35 | `rf_warmth` + wideband drone-RF (turns the stubbed snapshot field real) |
+| u-blox NEO-6M / MAX-M10 GPS (USB/UART) | $15 | `SurveillanceContext` distance math (deflock/OpenSky are lat/lon-dependent) |
+| 20Ah PD power bank (45W USB-C), cables, heatsinks, enclosure | $50 | portable rig |
+
+Total ≈ $248.
+
+Decisions recorded (do not re-litigate without new evidence):
+- **ESP32-S3 chosen over ESP32-C5** — C5's dual-radio concurrency unverified;
+  Xiao S3 is flock-you's native, shipped platform and does WiFi promiscuous +
+  BLE scan on one board. Reconsider C5 only if 6 GHz needed later.
+- **Kismet excluded from v1** — heavy process, packet-shaped data model vs our
+  event-shaped pipeline; ESP32 edge-sniffing matches the pattern used by
+  flock-you/DeFlock field deployments.
+- **Deferred hardware**: Ubertoth One (raw BLE packet capture — our features
+  never consume packet payloads), HackRF (~$350, V4 covers what the scorer
+  reads), Intel AX210/6 GHz (no PCIe path on the Pi rig).
+- flocked-you firmware is educational-licensed: **read its code as spec**
+  (serial JSON `{ts, rssi, mac}`, OUI/SSID/name detection methods), build
+  our own firmware from that spec.
+
 2. Build against the simulator first; live data requires external radios.
 3. Pi USB Wi-Fi dongles are finicky; verify AR9271 chipset before buying.
 4. Pi 5 needs ~15W: good 5V/3.2A+ PD power bank + trigger board.
