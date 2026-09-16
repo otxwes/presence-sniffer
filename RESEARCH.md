@@ -162,3 +162,53 @@ Level 2 — supervised, trained on our own logs:
    `adsb_sensor.py` for the ADS-B path).
 
 
+
+## Wardriving-design verification (2026-09-15)
+
+Sources checked against our Phase 1 BOL and event pipeline:
+
+1. **Kismet datasources documentation** (kismetwireless.net/docs/readme/datasources/)
+   Their standard wardrive rig checklist maps onto ours:
+   - WiFi: Linux monitor-mode adapters → **our ALFA MT7610U/MT7612U matches**
+   - GPS: `gpsd`/serial GPS → **our u-blox module matches** (plugs into `SurveillanceContext`)
+   - BLE: Linux HCI scanning is their baseline → our ESP32-BLE board is equivalent capability
+   - Fancier radios (Ubertooth, nRF52840, Wifi Coconut, Zigbee SDR) are their
+     optional extensions — mirrors our deferred list (Ubertooth etc.)
+   - RTL-SDR as Kismet datasource (rtl_433/Zigbee) → validates our SDR lane
+   - Kismet "wardrive mode" exists → if we ever want formal wardriver mode,
+     Kismet could even be an *optional* passenger process on the Pi 5 for
+     WiGLE-format logging; not v1.
+
+2. **Wardriver.uk rev3** (wardriver.uk) — closest open-source analog:
+   rev3 rig = **2× ESP32 (one for 2.4 GHz WiFi scan, one for BLE) + GPS + SD**,
+   with IPEX external antennas, producing WiGLE-uploadable CSV.
+   - **Directly validates our radio split**: two ESP32s, one per radio,
+     is the exact architecture the mature DIY wardriver community converged on.
+   - Deviation: they store CSV to SD card and upload to WiGLE; we ingest over
+     serial JSON into the event bus with a decaying window. Same sensing,
+     different retention (ours is ephemeral by design).
+   - If a WiGLE-submission mode is ever wanted, their GitHub source defines
+     the CSV field format to write.
+
+3. **WiGLE FAQ / EULA** (wigle.net/faq):
+   - Confirms accepted formats (Kismet netxml/nettxt/csv, Android app csv…)
+     — sets the export contract if we ever emit a wardriver mode.
+   - Community etiquette: submission not paired to people; fake data = ban;
+     AP owners can request record removal by BSSID. Our design (hashed,
+     decaying-window, no persistent person-scale history) is **stricter** than
+     the community norm — good for the exhibition framing.
+   - Notable: they warn users that anyone asking them to wardrive *for them*
+     may be soliciting SIGINT for illegal acts — consistent with our
+     "never a person/role identifier" stance in RESEARCH §5.
+
+**Verification verdict:** hardware capability matrix matches the standard
+wardriving literature with no gaps and two conscious deviations
+(event-shaped serial ingestion; ephemeral retention). The rig *is*
+wardriver-capable hardware; our v1 software is deliberately not a
+wardriver (see PLAN mode-boundaries).
+
+Retention caveat: current design stores no per-AP location history. If
+we later implement `--log-formal wifi` (wardriver mode), reuse
+Wardriver.uk's CSV format for WiGLE compatibility and honor the
+removal-by-BSSID norm.
+
