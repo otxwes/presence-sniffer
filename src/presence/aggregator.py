@@ -17,6 +17,7 @@ from .events import PresenceEvent, PresenceSnapshot
 from .osc_bridge import OscBridge
 from .simulator import DeviceSimulator
 from .threat import SurveillanceScorer
+from .purity import PurityCalculator
 
 SNAPSHOT_INTERVAL = 0.5  # seconds; feeds audio/viz at 2 Hz
 
@@ -94,6 +95,9 @@ async def main() -> None:
     bus.subscribe("snapshot", scorer.on_snapshot)
     bus.subscribe("threat", osc.on_threat)
 
+    purity = PurityCalculator()
+    bus.subscribe("purity", osc.on_purity)
+
     stop = asyncio.Event()
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGINT, signal.SIGTERM):
@@ -103,6 +107,14 @@ async def main() -> None:
           f"{args.osc_host}:{args.osc_port} (Ctrl-C to stop)", file=sys.stderr)
 
     tasks: list[asyncio.Task] = [asyncio.create_task(aggregator.snapshot_loop())]
+
+    async def _purity_loop() -> None:
+        """Purity feeds off the same snapshot cadence as the scorer."""
+        while True:
+            await asyncio.sleep(SNAPSHOT_INTERVAL)
+            await purity.on_snapshot(aggregator._latest, bus)
+
+    tasks.append(asyncio.create_task(_purity_loop()))
 
     if args.simulator:
         sim = DeviceSimulator(seed=None)

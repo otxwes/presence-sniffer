@@ -279,3 +279,109 @@ def test_scorer_publishes_and_resets():
     scorer.reset()
     assert scorer._held == 0.0 and not scorer._events
 
+
+# --- Exhibition mode: PurityCalculator --------------------------------------
+
+
+def test_purity_empty_room_is_pristine():
+    import asyncio
+
+    from presence.bus import EventBus
+    from presence.purity import PurityCalculator
+
+    async def scenario():
+        bus = EventBus()
+        received = []
+        bus.subscribe("purity", lambda p: received.append(p) or asyncio.sleep(0))
+        calc = PurityCalculator(clock=lambda: 1000.0)
+        from presence.events import PresenceSnapshot
+
+        await calc.on_snapshot(PuritySnapshot_ := PresenceSnapshot(), bus)
+        return received
+
+    received = asyncio.run(scenario())
+    assert received[-1].value == pytest.approx(1.0)
+    assert received[-1].interference == pytest.approx(0.0)
+
+
+def test_purity_degrades_with_crowd_and_recovers_slowly():
+    import asyncio
+    import math
+    import time as time
+
+    from presence.bus import EventBus
+    from presence.events import PresenceSnapshot
+    from presence.purity import PurityCalculator
+
+    class Clock:
+        def __init__(self):
+            self.t = 1000.0
+
+        def __call__(self):
+            return self.t
+
+    async def scenario():
+        clock = Clock()
+        bus = EventBus()
+        received = []
+        bus.subscribe("purity", lambda p: received.append(p) or asyncio.sleep(0))
+        calc = PurityCalculator(clock=clock)
+
+        # A close phone + friends walk in: purity must drop fast (attack tau)
+        busy = PresenceSnapshot(density=10, churn=2.0, proximity=0.875)
+        for _ in range(6):  # 3s at 0.5s tick
+            clock.t += 0.5
+            await calc.on_snapshot(busy, bus)
+        degraded = received[-1]
+        assert degraded.interference > 0.5, degraded.interference
+        return calc, clock, received
+
+    calc, clock, received = asyncio.run(scenario())
+    return calc, clock, received
+
+
+def test_purity_release_slower_than_attack():
+    # After devices vanish, purity must take many seconds to recover —
+    # that's the exhibition's core incentive loop.
+    import asyncio
+    import math
+
+    from presence.bus import EventBus
+    from presence.events import PresenceSnapshot
+    from presence.purity import PurityCalculator, RELEASE_TAU, ATTACK_TAU
+
+    class Clock:
+        def __init__(self):
+            self.t = 2000.0
+
+        def __call__(self):
+            return self.t
+
+    async def scenario():
+        clock = Clock()
+        bus = EventBus()
+        received = []
+        bus.subscribe("purity", lambda p: received.append(p) or asyncio.sleep(0))
+        calc = PurityCalculator(clock=clock)
+
+        busy = PresenceSnapshot(density=10, churn=2.0, proximity=0.875)
+        clock.t += 0.5
+        await calc.on_snapshot(busy, bus)
+        clock.t += 0.5
+        await calc.on_snapshot(busy, bus)
+
+        # devices gone: empty snapshot for a few ticks
+        empty = PresenceSnapshot()
+        clock.t += 0.5
+        await calc.on_snapshot(empty, bus)
+        post_attack = received[-1].interference
+        # release must be so slow that 3s later interference is still >40%
+        clock.t += 3.0
+        await calc.on_snapshot(empty, bus)
+        later = received[-1].interference
+        return post_attack, later, ATTACK_TAU, RELEASE_TAU
+
+    post_attack, later, a, r = asyncio.run(scenario())
+    assert r > a, "release tau must exceed attack tau"
+    assert later > 0.4 * post_attack, f"recovery too fast: {post_attack} -> {later}"
+

@@ -16,5 +16,12 @@
    - `/density`    → delay feedback, granular glitch rate
    - `/rf_warmth`  → pitch drift
 4. Use `live.object` / `live.remote` for parameter automation without baking to clips.
+5. Exhibition lane (phase 3a): `/purity` (1 = pristine, 0 = saturated) and its
+   inverse `/interference` drive the incentive mapping:
+   - `/interference` → bitcrush depth + delay feedback + filter resonance
+   - `/purity`       → macro morphing back to "clean" patches as visitors
+     keep devices away (slow release: ~8s tau, rewards sustained silence)
+   Copied from the daemon: `python -m presence.aggregator --simulator` prints
+   purity in the snapshot log for calibration before the show.
 
 The python daemon must be running: `python -m presence.aggregator --simulator`.

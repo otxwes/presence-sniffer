@@ -11,6 +11,8 @@ Max for Live patch (maxforlive/) receives on port 9090 with this layout:
   /surveillance_proxy    <float> 0..1 weighted surveillance proxy (Phase 2b)
   /surveillance_raw      <float> 0..1 pre-decay composite (tuning aid)
   /surveillance_cooldown <float> 0..1 remaining cooldown hold
+  /purity       <float>   1.0 pristine (clean RF) .. 0.0 saturated (exhibition lane)
+  /interference <float>   1.0 - purity, the flip side for viz/mapping
 """
 from __future__ import annotations
 
@@ -48,3 +50,10 @@ class OscBridge:
         self._client.send_message("/surveillance_proxy", self._f(threat.score))
         self._client.send_message("/surveillance_raw", self._f(threat.raw))
         self._client.send_message("/surveillance_cooldown", self._f(threat.cooldown))
+
+    async def on_purity(self, purity: "PurityScore") -> None:
+        """Exhibition lane: 1.0 = pristine (no devices frustrating the RF
+        environment), 0.0 = saturated. Slow-attack/fast-release so visitors
+        earn back clean audio by keeping devices away."""
+        self._client.send_message("/purity", self._f(purity.value))
+        self._client.send_message("/interference", self._f(1.0 - purity.value))
