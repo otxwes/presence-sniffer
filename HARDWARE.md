@@ -15,16 +15,19 @@ Total ≈ **$250–290**.
 | 6 | 100W PD power bank **or** 25W official PSU + powered USB hub | $30–50 | power | Pi 5 @ 5V/3A limits all USB to ~600 mA — our peripherals exceed that |
 | 7 | USB-A extensions ×4, USB-C pigtails, ferrite chokes, enclosure | $20 | build | Antennas exit case; SDR ≥10 cm from WiFi adapter |
 
-## Where to buy
+## Where to buy (re-validated live 2026-09-15)
 
-| Component | Source |
-|---|---|
-| XIAO ESP32-S3 | Seeed direct / Mouser / Amazon |
-| Pi 5 kit (PSU included) | CanaKit / Adafruit / PiShop |
-| ALFA ACHM/ACM | Amazon (ALFA store sold out) |
-| RTL-SDR V4 | rtl-sdr.com store (ships worldwide) |
-| GPS | Adafruit or Amazon |
-| Hub / cables | Amazon / PiShop |
+| Component | Confirmed source | Status |
+|---|---|---|
+| XIAO ESP32-S3 (plain, non-Sense) | [seeedstudio.com](https://www.seeedstudio.com/XIAO-ESP32S3-p-5627.html) — US warehouse | **In stock**, ~$7.49–14 each (cheaper than our $21 est.). Skip the "Sense" camera version — not needed |
+| Pi 5 (4GB) + 27W PSU + Active Cooler | canakit.com/raspberry-pi-5 | Pi 5 4GB from ~$110, PSU $14.95, Active Cooler $11.95 — all in stock. Budget crept up vs our $80–110 estimate |
+| ALFA **AWUS036ACM** (MT7612U) | **store.rokland.com** (authorized distributor) or Amazon sold-by-Rokland; also Newegg/eBay (note: Newegg lists one at $90 — scalped) | ACM readily available. Prefer **ACM over ACHM** — ACHM (MT7610U) stock is spotty |
+| RTL-SDR Blog V4 | rtl-sdr.com/store (ships worldwide, free ship) | V4 in stock ~$40; budget alt: **V4L Lite** (cheaper, latest release) |
+| GPS: Adafruit Ultimate GPS PA1616S | [adafruit.com/product/746](https://www.adafruit.com/product/746) | **$29.95, 29 in stock**, NMEA/UART, works with `gpsd` directly |
+| GPS budget alt | Seeed **L76K GNSS for XIAO** ($10.9) | Cheaper 3×, but it's an XIAO-shield format — only use if feeding GPS via an ESP32; for direct Pi `gpsd`, stick with Adafruit |
+| Powered USB hub / cables / chokes | Amazon / PiShop | Commodity, any vendor |
+
+Ordering note: Seeed US warehouse + Adafruit + RTL-SDR.com are all US-shipping → three orders, all in stock today.
 
 ## Decisions recorded (do not re-litigate without new evidence)
 
