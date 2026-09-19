@@ -1,6 +1,6 @@
 # HARDWARE.md — Phase 1 Bill of Materials
 
-Re-verified **2026-09-19**. Total ≈ **$260–300** (all in stock at listed sources).
+Re-verified **2026-09-19**. Total ≈ **$275–315** (all in stock at listed sources).
 
 ## Buy list
 
@@ -8,7 +8,7 @@ Re-verified **2026-09-19**. Total ≈ **$260–300** (all in stock at listed sou
 |---|---|---|---|---|
 | 1 | Seeed XIAO ESP32-S3 ×3 — **pre-soldered, plain non-Sense** | $25 (~$8 over unsoldered) | [seeedstudio.com US warehouse](https://www.seeedstudio.com/XIAO-ESP32S3-p-5627.html) | 1 board → WiFi promiscuous, 1 → BLE, 1 → spare (S3 is single-radio). Pre-soldered: fewer assembly variables while prototyping; headers removable later if needed |
 | 2 | Pi 5 **4GB board-only** + CanaKit 5A PD PSU ($14.95) + official Active Cooler ($11.95) + 32GB+ A1 microSD (Amazon) | ≈ $148 | canakit.com (cheapest in-stock 4GB; Vilros 4GB OOS, Adafruit $130) | PSU must negotiate **5V/5A PD** or USB budget drops to ~600 mA. Active Cooler, not the CanaKit Mega+Fan bundle (that requires their Turbine case; ours is custom). Skip micro-HDMI: headless via SSH, WiFi/SSH pre-configured in Pi Imager |
-| 3 | ALFA **AWUS036ACM** (MT7612U) | $25–40 | [store.rokland.com](https://store.rokland.com) (authorized; Amazon sold-by-Rokland alt; Newegg scalped ~$90) | Linux monitor mode, dual-band. ACM > ACHM (MT7610U, stock spotty; AR9271 NHA is EOL) |
+| 3 | ALFA **AWUS036ACM** (MT7612U) | **$46.97** | [store.rokland.com](https://store.rokland.com/products/alfa-awus036acm-802-11ac-dual-band-2-4-5-ghz-wifi-usb-adapter) (authorized; Amazon sold-by-Rokland alt; Newegg scalped ~$90) | Verified on Rokland page 2026-09-19: MT7612U, dual-band, 2× RP-SMA detachable antennas included, in-kernel driver since 4.19 (no install needed on Pi OS). Price +$12 over our old $25–40 estimate; Newegg scalped, so this is the honest price |
 | 4 | RTL-SDR Blog **V4** (budget alt: V4L Lite) | $40 | [rtl-sdr.com/store](https://www.rtl-sdr.com/store/) | `rf_warmth` + wideband drone-RF; current as of Aug 2026 |
 | 5 | GPS: Adafruit Ultimate **PA1616S** | $29.95 | [adafruit.com/product/746](https://www.adafruit.com/product/746) — low stock (~29 left) | NMEA/UART → `gpsd` → `SurveillanceContext` distance math. Budget alt: Seeed L76K ($10.9), XIAO-shield format — only if GPS routes via an ESP32 |
 | 6 | Powered USB hub + USB-A extensions ×4 + USB-C pigtails + ferrite chokes | ~$30 | Amazon / PiShop | Commodity. Antennas exit case; SDR ≥10 cm from the ALFA |
