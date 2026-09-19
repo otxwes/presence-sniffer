@@ -81,3 +81,30 @@ bridged over its hotspot (OSC is network-transparent).
 See **[HARDWARE.md](HARDWARE.md)** — single authoritative BOM, vendor list,
 recorded decisions, and physical build topology.
 
+## Progress state (durable memory — update at each session end)
+
+**As of 2026-09-19** (HEAD `79ff76e` on `main`):
+
+- **Hardware: ✅ ALL ORDERED.** Every BOM row purchased 2026-09-19 (total ≈ $320 +
+  shipping) — Seeed XIAO ESP32-S3 ×3 pre-soldered; CanaKit Pi 5 4GB + 5A PD PSU +
+  Active Cooler + microSD; ALFA AWUS036ACM (Rokland); RTL-SDR Blog V3 R860 dongle
+  (Amazon `B0BMKZCKTF`, official storefront); Adafruit PA1616S GPS; atolla 8-port
+  powered hub (`B07G8CMR18`); EGSCST ferrites (`B0H6N24XH6`); SUNGUY 1 ft
+  A-M→C-M data cables ×3 (`B0D12JLQMT`); PANPEO USB 3.0 keystone F/F couplers ×2
+  (`B0FF41114Q`). Verified ASINs + decision history live in HARDWARE.md; do not
+  re-order or re-litigate.
+- **Known enclosure consequence:** PANPEO couplers are keystone snap-in →
+  `case.scad` cutout is a **keystone slot (~30×16 mm + retention lip)**, not the
+  previously assumed ~22.5 mm round hole. Active Cooler blower vent also required.
+- **Next (while awaiting delivery):**
+  1. Implement `presence.sensors.*` device ingest → parser for ESP32 serial/BLE
+     input (`SerialBleSensor`) with mock-serial unit tests.
+  2. Optionally scaffold `hardware/case/case.scad` (keystone cutout + cooler vent).
+- **On delivery — bench sequence:** Pi standalone first, headless via Pi Imager,
+  `rfkill block wifi bluetooth`; flash XIAOs; end-to-end wiring (ESP32s + ALFA +
+  RTL-SDR + GPS on atolla hub; ferrites on USB/power, not antenna feeds); RSSI
+  walk-test at 1/3/6 m.
+- **Then:** enclosure last — caliper real parts, print, snap in keystones.
+- **Standing decisions locked** (see HARDWARE.md §Decisions): S3 pair over C5/C6
+  for v1; Kismet excluded; genuine V3 over V4L; HackRF/Ubertooth/AX210 deferred.
+
