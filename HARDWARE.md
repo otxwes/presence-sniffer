@@ -7,7 +7,7 @@ Total ≈ **$250–290**.
 
 | # | Item | ~Price | Feeds which code | Verification notes |
 |---|---|---|---|---|
-| 1 | Seeed XIAO ESP32-S3 ×3 | $21 | edge sensors; **1 board → WiFi promiscuous, 1 → BLE scan, 1 → spare** | S3 is single-radio — cannot scan WiFi and BLE simultaneously, hence one board per radio |
+| 1 | Seeed XIAO ESP32-S3 ×3 — **pre-soldered (with headers), plain non-Sense variant** | $21 | edge sensors; **1 board → WiFi promiscuous, 1 → BLE scan, 1 → spare** | S3 is single-radio — cannot scan WiFi and BLE simultaneously, hence one board per radio. Pre-soldered because: USB-C is on-board but GPIO debugging / L76K-shield / breadboard work during the bench phase needs headers, and the XIAO has no mounting holes (header pins double as an enclosure mount) |
 | 2 | Raspberry Pi 5 (4 or 8GB) + active cooler + case | $80–110 | aggregator host | Requires **5V/5A (25W)** PD supply, else USB budget caps at 600 mA |
 | 3 | ALFA AWUS036ACHM (MT7610U) *or* AWUS036ACM (MT7612U) | $25–35 | `WifiSensor` monitor mode | **ACHM is MT7610U, not AR9271** (that was the AWUS036NHA, EOL). Both support Linux monitor mode, dual-band. ACHM sold out direct — buy via Amazon/resellers |
 | 4 | RTL-SDR Blog V4 (~$40, or V4L Lite cheaper) | $40 | `rf_warmth` + wideband drone-RF | Still current as of Aug 2026 |
