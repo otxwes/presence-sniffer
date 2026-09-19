@@ -1,6 +1,6 @@
 # HARDWARE.md — Phase 1 Bill of Materials
 
-Last re-verified **2026-09-15** against vendor sites and current research.
+Last re-verified **2026-09-19** against vendor sites and current research.
 Total ≈ **$250–290**.
 
 ## Buy list (in order)
@@ -15,7 +15,7 @@ Total ≈ **$250–290**.
 | 6 | 100W PD power bank **or** 25W official PSU + powered USB hub | $30–50 | power | Pi 5 @ 5V/3A limits all USB to ~600 mA — our peripherals exceed that |
 | 7 | USB-A extensions ×4, USB-C pigtails, ferrite chokes, enclosure | $20 | build | Antennas exit case; SDR ≥10 cm from WiFi adapter |
 
-## Where to buy (re-validated live 2026-09-15)
+## Where to buy (re-validated live 2026-09-19)
 
 | Component | Confirmed source | Status |
 |---|---|---|
@@ -27,7 +27,7 @@ Total ≈ **$250–290**.
 | GPS budget alt | Seeed **L76K GNSS for XIAO** ($10.9) | Cheaper 3×, but it's an XIAO-shield format — only use if feeding GPS via an ESP32; for direct Pi `gpsd`, stick with Adafruit |
 | Powered USB hub / cables / chokes | Amazon / PiShop | Commodity, any vendor |
 
-Ordering note: Seeed US warehouse + Adafruit + RTL-SDR.com are all US-shipping → three orders, all in stock today.
+Ordering note: Seeed US warehouse + Adafruit + RTL-SDR.com are all US-shipping → three orders, all in stock as of 2026-09-19.
 
 ## Decisions recorded (do not re-litigate without new evidence)
 
