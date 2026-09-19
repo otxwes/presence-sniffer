@@ -2,7 +2,7 @@
 
 Re-verified **2026-09-19** (SDR row re-verified 2026-09-15). Total ≈ **$275–315** (all in stock at listed sources).
 
-> **STATUS: ✅ ALL ITEMS PURCHASED — 2026-09-15.** Full cart ordered (total ≈ $320 + shipping). Awaiting delivery for the bench sequence. See row notes for verified ASINs/sources. Do not re-order.
+> **STATUS: ✅ ALL ITEMS PURCHASED — 2026-09-19.** Full cart ordered (total ≈ $320 + shipping). Awaiting delivery for the bench sequence. See row notes for verified ASINs/sources. Do not re-order.
 
 ## Buy list
 
