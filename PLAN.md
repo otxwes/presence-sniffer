@@ -32,6 +32,12 @@ Note: macOS cannot put its internal Wi-Fi/BT into monitor/promiscuous mode — e
 radios are required from day one. Mac runs dev + Ableton; Pi is the portable host,
 bridged over its hotspot (OSC is network-transparent).
 
+### Bench bring-up
+
+See **[BENCH.md](BENCH.md)** — step-by-step once parts are in hand: Pi
+standalone headless → ALFA monitor mode → RTL-SDR / GPS → ESP32 flashing
+through cables → full-hub integration → pipeline smoke test → enclosure last.
+
 ## Software stack
 
 - **Wi-Fi (Pi):** Python + Scapy capturing probe-request frames w/ RSSI per device
@@ -100,10 +106,9 @@ recorded decisions, and physical build topology.
   1. Implement `presence.sensors.*` device ingest → parser for ESP32 serial/BLE
      input (`SerialBleSensor`) with mock-serial unit tests.
   2. Optionally scaffold `hardware/case/case.scad` (keystone cutout + cooler vent).
-- **On delivery — bench sequence:** Pi standalone first, headless via Pi Imager,
-  `rfkill block wifi bluetooth`; flash XIAOs; end-to-end wiring (ESP32s + ALFA +
-  RTL-SDR + GPS on atolla hub; ferrites on USB/power, not antenna feeds); RSSI
-  walk-test at 1/3/6 m.
+- **On delivery — bench sequence:** follow **[BENCH.md](BENCH.md)** stage by
+  stage (Pi standalone, rfkill-blocked ALFA/RTL-SDR/GPS, XIAO flashing, full
+  hub integration, ferrites only if noise appears, enclosure last).
 - **Then:** enclosure last — caliper real parts, print, snap in keystones.
 - **Standing decisions locked** (see HARDWARE.md §Decisions): S3 pair over C5/C6
   for v1; Kismet excluded; genuine V3 over V4L; HackRF/Ubertooth/AX210 deferred.
