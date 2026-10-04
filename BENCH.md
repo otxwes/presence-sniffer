@@ -15,7 +15,7 @@ All purchases completed **2026-09-19** — see plan-issued at that commit.
 2. Ferrite kit: keep bagged until Stage 4; they snap on USB/power lines only,
    never on the ALFA antenna or GPS antenna feeds.
 
-## Stage 1 — Pi standalone, headless (~20 min)
+## Stage 1 — Pi standalone, headless (~20 min) — ✅ CLOSED 2026-10-04
 
 Peripherals: CanaKit 5A PD PSU + microSD only. This isolates PSU/SD failures.
 
@@ -31,24 +31,62 @@ Peripherals: CanaKit 5A PD PSU + microSD only. This isolates PSU/SD failures.
    vcgencmd measure_volts && vcgencmd get_throttled   # 0x0 = clean
    ```
 
-## Stage 2 — Radio validation, one device at a time (~30 min)
+**Lessons learned 2026-10-04 (for any future re-flash):**
 
-**First**, disable the Pi's own radios — permanent config, not just bench; the
-rig must never count/sense itself (it advertises; the ESP32s don't):
+- Imager v2 only exposes OS-customization via the **NEXT → "Edit Settings"**
+  dialog and does not persist them between runs. If the Pi boots silent, mount
+  `bootfs` and read `user-data`/`network-config` before debugging anything else.
+- "Wireless LAN country: US" is mandatory; it lands in `cmdline.txt` as
+  `cfg80211.ieee80211_regdom=US`.
+- WiFi password sits plain-text in `network-config` until cloud-init's first
+  successful boot wipes it. Don't leave the card loose.
+- User: `otxwes` (1Password-generated password), hostname `sniffer`, key-based
+  ssh from the Mac (`cline-agent` key) + NOPASSWD sudoers at
+  `/etc/sudoers.d/010-otxwes-nopasswd`.
+- `bootfs/cmdline.txt` retains Imager's `ds=nocloud;i=rpi-imager-...` plus our
+  added `systemd.mask=systemd-rfkill.socket systemd.mask=systemd-rfkill.service`
+  (recovery edit after an accidental `rfkill block wifi`; kept).
 
-```bash
-sudo rfkill block wifi bluetooth
-```
+## Stage 2 — Radio validation, one device at a time (~30 min) — ALFA leg ✅ 2026-10-04
+
+**Bench posture revision (2026-10-04):** the original blanket
+`sudo rfkill block wifi bluetooth` **cannot work on a rig whose only management
+path is that WiFi** — it cuts the SSH door mid-flight and persists across
+reboots via `systemd-rfkill` (and blocks the USB ALFA too, since rfkill types
+span devices). Revised posture:
+
+- **Bluetooth**: `dtoverlay=disable-bt` appended to `/boot/firmware/config.txt`
+  (firmware-level kill, permanent, survives everything; `hciuart.service` no
+  longer exists — expected after the overlay). **Done 2026-10-04.**
+- **WiFi internal (`wlan0`)**: stays up as the management channel
+  (`sniffer.local` via mDNS). Passive, non-associating listener; tolerable RF
+  footprint next to the ALFA. Revisit (`dtoverlay=disable-wifi`) only once a
+  non-RF management channel exists (Ethernet cable / USB-serial console).
+- **ALFA (`wlan1`)**: the only actively-driven RF device.
 
 1. **ALFA AWUS036ACM** — the core of the rig; monitor mode is non-negotiable:
-   - Plug into hub, `dmesg | tail` → expect `mt7612u` binding (in-kernel since
-     4.19, nothing to install on Pi OS).
-   - ```bash
-     sudo ip link set wlan1 down && sudo iw dev wlan1 set type monitor && iw dev wlan1
+   **PROVEN 2026-10-04.**
+   - Powers/works only plugged **directly into the Pi's USB-A port**
+     (`ID 0e8d:7612 MediaTek MT7612U`, interface `wlan1`,
+     `00:c0:ca:be:24:0c`). The atolla hub could not power it on any port
+     (LED dead, not enumerated) — hub revisit deferred to Phase 4 with its
+     wall brick in play.
+   - Driver `mt76x2u` module binds automatically (in-kernel), nothing to
+     install. A vendor Windows/Mac driver download is irrelevant — skip it.
+   - Monitor-mode recipe (note: `iw` lives in `/usr/sbin`; using tcpdump's
+     `-I` flag *after* setting monitor manually errors with "doesn't support
+     monitor mode" — set type via `iw`, run tcpdump **without** `-I`):
+     ```bash
+     sudo ip link set wlan1 down
+     sudo iw dev wlan1 set type monitor
+     sudo ip link set wlan1 up
+     iw dev wlan1 info        # expect: type monitor / ch1 2412 MHz / 22 dBm
      ```
-     Output must show **type monitor**. If yes → ALFA fully validated.
-   - Smoke test: `sudo tcpdump -i wlan1 -c 50` with your phone nearby —
-     streaming frames = done.
+   - Smoke capture passed: `sudo tcpdump -i wlan1 -c 25 --immediate-mode` →
+     25/25 frames, 0 kernel drops, dual-antenna RSSI −39…−88 dBm, neighbor
+     beacons visible (incl. WiZ smart-bulb APs). Fully validated.
+   - **Persistence**: `/etc/systemd/system/sniffer-monitor.service`
+     (enabled; oneshot down → set type monitor → up at every boot).
 2. **RTL-SDR V3**: `sudo apt install rtl-sdr` (blacklist the DVB-T TV driver if
    prompted, first run). `rtl_test` → expect R860 tuner; watch gain outputs.
    Confirm tuning across our bands (VHF/UHF/ISM):
@@ -77,7 +115,9 @@ sudo rfkill block wifi bluetooth
 ## Stage 4 — Full integration (~30 min)
 
 All devices on the atolla 8-port powered hub (per-port switches on), hub on its
-own 5V/4A brick, Pi on the CanaKit PSU. Watch for:
+own 5V/4A brick, Pi on the CanaKit PSU. **Known issue from Stage 2 (2026-10-04):
+the hub could not power the ALFA at all even bus-powered — the ALFA remains on
+the Pi's own port until hub integration is re-tested with the wall brick.** Watch for:
 - CPU load and thermal (`vcgencmd measure_temp`).
 - Hub brownout / device re-enumeration (`dmesg` errors, ports dropping).
 - ALFA ↔ RTL-SDR proximity interference (both live in ~1.7 GHz range; keep ≥10 cm
