@@ -66,11 +66,10 @@ span devices). Revised posture:
 
 1. **ALFA AWUS036ACM** — the core of the rig; monitor mode is non-negotiable:
    **PROVEN 2026-10-04.**
-   - Powers/works only plugged **directly into the Pi's USB-A port**
-     (`ID 0e8d:7612 MediaTek MT7612U`, interface `wlan1`,
-     `00:c0:ca:be:24:0c`). The atolla hub could not power it on any port
-     (LED dead, not enumerated) — hub revisit deferred to Phase 4 with its
-     wall brick in play.
+   - Powers/works through the hub **only when the atolla's 5V/4A wall brick is
+     connected** (bus-powered mode starves it; verified on the Mac via USB
+     power budget). Enumerates as `ID 0e8d:7612 MediaTek MT7612U` behind the
+     hub's Genesys tiers → `wlan1` (`00:c0:ca:be:24:0c`).
    - Driver `mt76x2u` module binds automatically (in-kernel), nothing to
      install. A vendor Windows/Mac driver download is irrelevant — skip it.
    - Monitor-mode recipe (note: `iw` lives in `/usr/sbin`; using tcpdump's
@@ -115,9 +114,13 @@ span devices). Revised posture:
 ## Stage 4 — Full integration (~30 min)
 
 All devices on the atolla 8-port powered hub (per-port switches on), hub on its
-own 5V/4A brick, Pi on the CanaKit PSU. **Known issue from Stage 2 (2026-10-04):
-the hub could not power the ALFA at all even bus-powered — the ALFA remains on
-the Pi's own port until hub integration is re-tested with the wall brick.** Watch for:
+own 5V/4A brick, Pi on the CanaKit PSU. **RESOLVED 2026-10-04: the Stage-2 "hub
+can't power the ALFA" issue was missing/unpowered wall brick — bus-powered mode
+gives only ~400 mA total (verified via `system_profiler SPUSBDataType` on the
+Mac: `Current Available (mA): 500`, 100 of it consumed by the hub chip). With
+the 5V/4A brick plugged in, per-port budget jumps to 900 mA and the ALFA
+(0e8d:7612) enumerates through two Genesys hub tiers and captures normally.
+Ferrite lesson if any hub question re-opens: diagnose power budget FIRST.** Watch for:
 - CPU load and thermal (`vcgencmd measure_temp`).
 - Hub brownout / device re-enumeration (`dmesg` errors, ports dropping).
 - ALFA ↔ RTL-SDR proximity interference (both live in ~1.7 GHz range; keep ≥10 cm
