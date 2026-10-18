@@ -89,26 +89,32 @@ recorded decisions, and physical build topology.
 
 ## Progress state (durable memory — update at each session end)
 
-**As of 2026-09-19** (HEAD `79ff76e` on `main`):
+**As of 2026-10-04** (HEAD `6741c07` on `main`) — **BENCH.md is the live
+bring-up source of truth**; its stage headers carry the ✅/⏳ status.
 
-- **Hardware: ✅ ALL ORDERED.** Every BOM row purchased 2026-09-19 (total ≈ $320 +
-  shipping) — Seeed XIAO ESP32-S3 ×3 pre-soldered; CanaKit Pi 5 4GB + 5A PD PSU +
-  Active Cooler + microSD; ALFA AWUS036ACM (Rokland); RTL-SDR Blog V3 R860 dongle
-  (Amazon `B0BMKZCKTF`, official storefront); Adafruit PA1616S GPS; atolla 8-port
-  powered hub (`B07G8CMR18`); EGSCST ferrites (`B0H6N24XH6`); SUNGUY 1 ft
-  A-M→C-M data cables ×3 (`B0D12JLQMT`); PANPEO USB 3.0 keystone F/F couplers ×2
-  (`B0FF41114Q`). Verified ASINs + decision history live in HARDWARE.md; do not
-  re-order or re-litigate.
+- **Hardware: ✅ ALL DELIVERED.** Every BOM row purchased 2026-09-19 (≈ $320 +
+  shipping) and arrived; no open orders. ASINs + decision history live in
+  HARDWARE.md; do not re-order or re-litigate.
+- **Bench progress:**
+  - Stage 0 (unbox/inspect): ✅
+  - Stage 1 (Pi 5 headless, `sniffer.local`, user `otxwes`): ✅ closed 2026-10-04
+    (Imager lessons recorded in BENCH.md).
+  - Stage 2a (ALFA AWUS036ACM): ✅ proven 2026-10-04 — monitor mode via
+    `sniffer-monitor.service` (enabled at boot); hub must run on its own 5V/4A
+    wall brick. BT killed at firmware level (`dtoverlay=disable-bt`); Pi's wlan0
+    stays up as management channel (revised posture in BENCH.md).
+  - Stage 2b (RTL-SDR V3): ⏳ `rtl-sdr` pkg installed +
+    `/etc/modprobe.d/rtl-sdr-blacklist.conf` (dvb_usb_rtl28xxu etc.) in place
+    2026-10-18; awaiting dongle plug-in for `rtl_test` / band checks.
+  - Stage 2c (GPS PA1616S): ⏳ not started.
+  - Stage 3 (XIAO ESP32-S3 ×3 flashing): ⏳ not started.
+  - Stage 4 (full hub integration): ⏳.
+  - Stage 5 (smoke test with `presence/sensors`): ⏳.
 - **Known enclosure consequence:** PANPEO couplers are keystone snap-in →
   `case.scad` cutout is a **keystone slot (~30×16 mm + retention lip)**, not the
   previously assumed ~22.5 mm round hole. Active Cooler blower vent also required.
-- **Next (while awaiting delivery):**
-  1. Implement `presence.sensors.*` device ingest → parser for ESP32 serial/BLE
-     input (`SerialBleSensor`) with mock-serial unit tests.
-  2. Optionally scaffold `hardware/case/case.scad` (keystone cutout + cooler vent).
-- **On delivery — bench sequence:** follow **[BENCH.md](BENCH.md)** stage by
-  stage (Pi standalone, rfkill-blocked ALFA/RTL-SDR/GPS, XIAO flashing, full
-  hub integration, ferrites only if noise appears, enclosure last).
+- **Deferred code item:** `SerialBleSensor` (ESP32 serial/BLE ingest parser +
+  mock-serial unit tests) — do after Stage 3 flashing, against real board output.
 - **Then:** enclosure last — caliper real parts, print, snap in keystones.
 - **Standing decisions locked** (see HARDWARE.md §Decisions): S3 pair over C5/C6
   for v1; Kismet excluded; genuine V3 over V4L; HackRF/Ubertooth/AX210 deferred.
