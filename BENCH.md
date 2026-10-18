@@ -110,15 +110,27 @@ span devices). Revised posture:
      station at 98.0 MHz, no signal anywhere); `rtl_sdr -n` never reaches
      its sample count (streams indefinitely). Zero USB-side kernel errors
      on either host — the failure is in the tuner/analog section, not USB.
-     Full gain sweep at 98.0 MHz (Mac): I std by gain 0/7.7/16.6/25.4/33.8/
-     42.1/49.6 dB = 3.72/0.53/0.54/0.57/0.66/0.82/1.16 — gain raises the
-     magnitude and PINS the output toward the 127 rail (inverted behavior);
-     even at 0 dB the std (3.7) is far below the ~15–30 a working receiver
+     Full gain sweep at 98.0 MHz. NOTE: in `rtl_sdr`, `-g 0`/auto = AGC,
+     not "0 dB manual". AGC → I std 3.72–5.54 but still flat, no market
+     structure; manual 7.7/16.6/25.4/33.8/42.1/49.6 dB → std 0.53/0.54/
+     0.57/0.66/0.82/1.16 — MORE gain, MORE pinned to the 127 rail
+     (inverted); even AGC's std is far below the ~15–30 a healthy receiver
      shows from its own noise floor. Also tested 433.92 MHz (same rail).
+     **Setup-vs-guide audit done 2026-10-18:** Linux/macOS driver choice
+     correct, DVB-T blacklist in place, bias tee N/A (passive antenna; must
+     stay off), HF direct sampling N/A — it's for <28.8 MHz only and all
+     our bands/tests are ≥88 MHz. In-box advice is to use the RTL-SDR Blog
+     driver fork → **built `rtlsdrblog/rtl-sdr-blog` on the Mac and re-tested:
+     identical failure** (manual 42.1/49.6 dB → std 1.16/1.69; PLL never
+     locks; flat spectrum). Coherent diagnosis: PLL never locks → no LO →
+     no downconversion → constant ADC rail = synthesizer/tuner failure,
+     not software.
      EEPROM is **fully default/blank** (Manufacturer `Realtek`, Product
-     `RTL2838UHIDIR`, SN `00000001`) — no RTL-SDR Blog programming.
-     Amazon `B0BMKZCKTF` "official storefront" → treat as DOA RMA /
-     counterfeit-risk ticket (see HARDWARE.md row 4 note).
+     `RTL2838UHIDIR`, SN `00000001`) — no RTL-SDR Blog programming. Note the
+     official V3 user guide carries a counterfeit warning: "features may not
+     work correctly, if at all — lodge a dispute with the marketplace".
+     Amazon `B0BMKZCKTF` "official storefront" → DOA RMA + counterfeit-risk
+     ticket (see HARDWARE.md row 4 note and RTL_SDR_RETURN.md).
    - **Re-test recipe for the replacement unit (10 min):** plug in, `rtl_test`
      (expect tuner + no persistent PLL complaint), then
      `rtl_sdr -f 98.0M -s 2048000 -g 42 -n 4194304 /tmp/iq.bin` → analyze:
