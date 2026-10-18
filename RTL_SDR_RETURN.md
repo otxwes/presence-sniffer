@@ -45,15 +45,16 @@ driver loads, but it never produces usable RF data:
   intended use (VHF/UHF/ISM) are in that range. Bias tee is not used
   (passive antenna) and remains off.
 
-## Secondary observation
+## Notes
 
-The EEPROM is fully default/blank (`Manufacturer: Realtek`,
-`Product: RTL2838UHIDIR`, `Serial number: 00000001`). Genuine RTL-SDR Blog V3
-units normally ship with RTL-SDR Blog-specific EEPROM strings. Combined with
-the dead RF section this matches the counterfeit warning in the official V3
-user guide ("features may not work correctly, if at all — lodge a dispute
-with the marketplace"), so we are raising both the DOA failure and the
-identity question.
+- The unit's USB/EEPROM identity is the standard Realtek default
+  (`RTL2838UHIDIR` / `Realtek` / SN 00000001). This is **normal for a V3**
+  (only V4/V4L use Blog-specific EEPROM strings), so it is not evidence of
+  anything — the return stands on the functional failure alone.
+- Listing verified as the correct model: Amazon `B0BMKZCKTF` = "RTL-SDR Blog
+  V3 R860 RTL2832U 1PPM TCXO SMA ... (Dongle Only) (Black)"; the unit
+  reports as V3-family silicon (R820T/R860) under the official driver.
+- Re-confirmed failing again immediately before filing this report.
 
 ## Request
 

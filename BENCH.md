@@ -125,12 +125,18 @@ span devices). Revised posture:
      locks; flat spectrum). Coherent diagnosis: PLL never locks → no LO →
      no downconversion → constant ADC rail = synthesizer/tuner failure,
      not software.
-     EEPROM is **fully default/blank** (Manufacturer `Realtek`, Product
-     `RTL2838UHIDIR`, SN `00000001`) — no RTL-SDR Blog programming. Note the
-     official V3 user guide carries a counterfeit warning: "features may not
-     work correctly, if at all — lodge a dispute with the marketplace".
-     Amazon `B0BMKZCKTF` "official storefront" → DOA RMA + counterfeit-risk
-     ticket (see HARDWARE.md row 4 note and RTL_SDR_RETURN.md).
+     EEPROM/USB identity is the standard Realtek default (`RTL2838UHIDIR`,
+     `Realtek`, SN `00000001`). **CORRECTION 2026-10-18: this is NORMAL for
+     V3** — only V4/V4L units carry `RTLSDRBlog`/`Blog V4` EEPROM strings,
+     which exist so drivers can distinguish them (per the manufacturer's own
+     forum post); the default EEPROM is NOT counterfeit evidence — earlier
+     note withdrawn. For a clone check use the official physical tells
+     (side-panel screws diagonal = genuine; NSY QC batch sticker on back)
+     and verify Amazon "Sold by" is exactly `RTL-SDR Blog`.
+     Listing re-verified 2026-10-18: Amazon `B0BMKZCKTF` =
+     "RTL-SDR Blog V3 R860 RTL2832U 1PPM TCXO SMA ... (Dongle Only)
+     (Black)" — correct V3 listing; unit is V3-family silicon.
+     → DOA return/replacement (see RTL_SDR_RETURN.md).
    - **Re-test recipe for the replacement unit (10 min):** plug in, `rtl_test`
      (expect tuner + no persistent PLL complaint), then
      `rtl_sdr -f 98.0M -s 2048000 -g 42 -n 4194304 /tmp/iq.bin` → analyze:
