@@ -150,6 +150,13 @@ span devices). Revised posture:
    `sudo apt install gpsd gpsd-clients && sudo gpsmon` — expect NMEA frames with
    lat/lon. Cold start needs a window seat and can take **5–15 min**; don't
    debug it indoors in a basement.
+   **Physical path reality (2026-10-18):** board = pin-header **#746**, no USB
+   port (USB twin = #4279). The 16-pin header ships **loose** → requires
+   **soldering** + 4× F-F Dupont jumpers to Pi GPIO (VIN→pin 1, GND→pin 6,
+   TX→pin 10, RX→pin 8). Pi-side: `gpsd`+`gpsd-clients` installed 2026-10-18
+   (USBAUTO=true, no serial console getty), but header UART `/dev/ttyAMA0` is
+   **disabled** — set `enable_uart=1` in `/boot/firmware/config.txt` + reboot
+   before gpsd can read it.
 
 ## Stage 3 — ESP32 boards (~15 min each)
 
