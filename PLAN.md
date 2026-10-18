@@ -103,9 +103,11 @@ bring-up source of truth**; its stage headers carry the ✅/⏳ status.
     `sniffer-monitor.service` (enabled at boot); hub must run on its own 5V/4A
     wall brick. BT killed at firmware level (`dtoverlay=disable-bt`); Pi's wlan0
     stays up as management channel (revised posture in BENCH.md).
-  - Stage 2b (RTL-SDR V3): ⏳ `rtl-sdr` pkg installed +
-    `/etc/modprobe.d/rtl-sdr-blacklist.conf` (dvb_usb_rtl28xxu etc.) in place
-    2026-10-18; awaiting dongle plug-in for `rtl_test` / band checks.
+  - Stage 2b (RTL-SDR V3): ⚠️ **first unit DOA 2026-10-18** — cross-host
+    proof (Pi + Mac both: dead constant-rail IQ, PLL never locks, default
+    EEPROM identity); replacement/RMA in progress. `rtl-sdr` pkg + DVB
+    blacklist on the Pi stand for the replacement. Full evidence + re-test
+    recipe in BENCH.md Stage 2 item 2.
   - Stage 2c (GPS PA1616S): ⏳ not started.
   - Stage 3 (XIAO ESP32-S3 ×3 flashing): ⏳ not started.
   - Stage 4 (full hub integration): ⏳.

@@ -90,6 +90,44 @@ span devices). Revised posture:
    prompted, first run). `rtl_test` → expect R860 tuner; watch gain outputs.
    Confirm tuning across our bands (VHF/UHF/ISM):
    `rtl_fm -f 88.5M -M fm -s 22050 - | aplay` or equivalent scan.
+   - **⭐ RTL-SDR V3 leg made first attempt 2026-10-18 — UNIT DOA, replacement
+     in progress.** Preparatory work that STANDs for the replacement unit:
+     - `rtl-sdr` pkg installed (Debian trixie `2.0.2`; fine for R820T/R860 —
+       the R860 silicon IDs as "R820T" by design, it's the same R82xx family).
+     - `/etc/modprobe.d/rtl-sdr-blacklist.conf` created (blacklist
+       `dvb_usb_rtl28xxu` / `rtl2832` / `rtl2830` + `depmod`) so the kernel
+       DVB-T driver never claims the stick.
+     - `rtl_test -t` note: `-t` means "E4000 tuner benchmark"; R82xx-class
+       dongles print `No E4000 tuner found, aborting` here — that line is
+       EXPECTED, not a fault. Plain `rtl_test` runs a ringing loop (ctrl-c).
+     - `[R82XX] PLL not locked!` alone is cosmetic in many field reports;
+       the real test is capture data, below.
+   - **DOA evidence (2026-10-18) — cross-host, identical:** Pi 5
+     (librtlsdr 2.0.2 / trixie) and Mac (Homebrew librtlsdr 2.0.3) both:
+     enumerate `0bda:2838 Realtek RTL2838UHIDIR SN: 00000001`; `rtl_test`
+     finds "R820T" then PLL never locks; captured IQ is a constant rail
+     (bytes 123–132, I std 0.81, flat spectrum ±800 kHz to ~0.3 dB — no FM
+     station at 98.0 MHz, no signal anywhere); `rtl_sdr -n` never reaches
+     its sample count (streams indefinitely). Zero USB-side kernel errors
+     on either host — the failure is in the tuner/analog section, not USB.
+     Full gain sweep at 98.0 MHz (Mac): I std by gain 0/7.7/16.6/25.4/33.8/
+     42.1/49.6 dB = 3.72/0.53/0.54/0.57/0.66/0.82/1.16 — gain raises the
+     magnitude and PINS the output toward the 127 rail (inverted behavior);
+     even at 0 dB the std (3.7) is far below the ~15–30 a working receiver
+     shows from its own noise floor. Also tested 433.92 MHz (same rail).
+     EEPROM is **fully default/blank** (Manufacturer `Realtek`, Product
+     `RTL2838UHIDIR`, SN `00000001`) — no RTL-SDR Blog programming.
+     Amazon `B0BMKZCKTF` "official storefront" → treat as DOA RMA /
+     counterfeit-risk ticket (see HARDWARE.md row 4 note).
+   - **Re-test recipe for the replacement unit (10 min):** plug in, `rtl_test`
+     (expect tuner + no persistent PLL complaint), then
+     `rtl_sdr -f 98.0M -s 2048000 -g 42 -n 4194304 /tmp/iq.bin` → analyze:
+     healthy capture has byte spread well beyond 123–132 and a spectrum with
+     dB-scale station structure. Then `rtl_power -f 88M:108M:200k -i 1 -e 10
+     -g 42 /tmp/fm.csv` → real markets show stations 20–40 dB above floor;
+     then demod an identified station with `rtl_fm -f <st>M -M fm -s 22050 -g
+     42 - | aplay`. Analyzer script: saved this session as `analyze_iq.py`
+     (bytes → byte-span / I-std / flat-spectrum verdict).
 3. **GPS PA1616S**: 9600 baud NMEA/UART → `gpsd`:
    `sudo apt install gpsd gpsd-clients && sudo gpsmon` — expect NMEA frames with
    lat/lon. Cold start needs a window seat and can take **5–15 min**; don't
