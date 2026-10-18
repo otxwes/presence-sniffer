@@ -154,9 +154,10 @@ span devices). Revised posture:
    port (USB twin = #4279). The 16-pin header ships **loose** → requires
    **soldering** + 4× F-F Dupont jumpers to Pi GPIO (VIN→pin 1, GND→pin 6,
    TX→pin 10, RX→pin 8). Pi-side: `gpsd`+`gpsd-clients` installed 2026-10-18
-   (USBAUTO=true, no serial console getty), but header UART `/dev/ttyAMA0` is
-   **disabled** — set `enable_uart=1` in `/boot/firmware/config.txt` + reboot
-   before gpsd can read it.
+   (USBAUTO=true, no serial console getty). **Plan (2026-10-18):** user has a
+   soldering iron (solder session on a future bench day); **order 4+ F-F
+   Dupont jumpers (~$7)**. `enable_uart=1` applied + rebooted same day →
+   `/dev/ttyAMA0` live, `gpsd` pre-pointed at it — soldering day = wire + go.
 
 ## Stage 3 — ESP32 boards (~15 min each)
 
