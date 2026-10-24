@@ -189,7 +189,7 @@ span devices). Revised posture:
    Dupont jumpers (~$7)**. `enable_uart=1` applied + rebooted same day →
    `/dev/ttyAMA0` live, `gpsd` pre-pointed at it — soldering day = wire + go.
 
-## Stage 3 — ESP32 boards (~15 min each)
+## Stage 3 — ESP32 boards (~15 min each) ✅ flash-verified 2026-10-24
 
 1. **First: flash a trivial sketch through each SUNGUY cable** — a successful
    esptool flash is the physical proof the cable is a data cable (spec says
@@ -212,6 +212,12 @@ span devices). Revised posture:
   at `0x7FF000` all verified through the powered hub. ✅ ready for firmware.
 - **Board 2** — MAC `44:b1:76:b0:55:68`; same chip/flash; `flash-id` +
   scratch write/read/restore ✅.
+- **Board 3** — MAC `44:b1:76:ae:d5:0c`; same chip/flash; `flash-id` +
+  scratch write/read/restore ✅.
+
+**All three boards verified 2026-10-24** — same ESP32-S3 v0.2, 8 MB flash,
+8 MB PSRAM; all flash through the hub. Hardware side of Stage 3 done;
+firmware next.
 - **Tooling:** apt `esptool` 4.7.0 is missing `stub_flasher_32s3.json`
   (Debian packaging bug); use `~/.venvs/esptool/bin/esptool` (v5.6.0,
   installed 2026-10-24). Stub flasher works; commands are hyphenated
