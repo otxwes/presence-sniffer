@@ -205,6 +205,16 @@ span devices). Revised posture:
    + `E4:AA:EA` (Liteon), channel-hop 1–11 @ 400 ms. Spec reading (not
    importing code — educational license): `github.com/JakeSwiz/flock-you-wifi-recon`.
 
+**Progress log (2026-10-24):**
+- **Board 1** — MAC `b8:1f:3f:d9:28:d8`; ESP32-S3 v0.2, 8 MB flash
+  (GigaDevice `c8 4017`, quad), 8 MB PSRAM, USB-Serial/JTAG. SUNGUY cable =
+  data cable. `flash-id` + 4 KB scratch write → read → byte-compare → restore
+  at `0x7FF000` all verified through the powered hub. ✅ ready for firmware.
+- **Tooling:** apt `esptool` 4.7.0 is missing `stub_flasher_32s3.json`
+  (Debian packaging bug); use `~/.venvs/esptool/bin/esptool` (v5.6.0,
+  installed 2026-10-24). Stub flasher works; commands are hyphenated
+  (`flash-id`, `read-flash`, `write-flash`).
+
 ## Stage 4 — Full integration (~30 min)
 
 All devices on the atolla 8-port powered hub (per-port switches on), hub on its
