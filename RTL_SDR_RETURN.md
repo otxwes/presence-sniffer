@@ -7,6 +7,16 @@
 Reproducible across three driver/host setups, including the official RTL-SDR
 Blog driver. Replacement requested (same model).
 
+## Update 2026-10-24 — replacement unit failed identically
+
+The replacement unit received 2026-10-24 shows the **same failure on first
+test**: `[R82XX] PLL not locked!`, IQ pinned to bytes 123–131 (I std 0.83;
+healthy ≥5), and a completely flat 88–108 MHz scan (zero peaks >6 dB above
+floor) — measured on the same Pi + powered hub that runs a Wi-Fi adapter
+normally. Two consecutive units from the same listing with a byte-identical
+fault indicate a batch or counterfeit problem rather than a single-unit DOA.
+Requesting a refund; will verify the seller channel before repurchasing.
+
 ## Symptom summary (for the seller)
 
 The dongle enumerates fine over USB (`0bda:2838`, RTL2838UHIDIR) and its
@@ -58,7 +68,9 @@ driver loads, but it never produces usable RF data:
 
 ## Request
 
-Replacement with a new RTL-SDR Blog V3 (R860) unit — or refund.
+Given two consecutive DOA units from this listing: **refund** (preferred), or
+a replacement from verified-genuine stock. The first unit (2026-10-18) showed
+the identical fault; see the update section above.
 
 ## Verification checklist for the replacement unit
 

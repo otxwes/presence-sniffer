@@ -101,8 +101,18 @@ span devices). Revised posture:
    prompted, first run). `rtl_test` → expect R860 tuner; watch gain outputs.
    Confirm tuning across our bands (VHF/UHF/ISM):
    `rtl_fm -f 88.5M -M fm -s 22050 - | aplay` or equivalent scan.
-   - **⭐ RTL-SDR V3 leg made first attempt 2026-10-18 — UNIT DOA, replacement
-     in progress.** Preparatory work that STANDs for the replacement unit:
+   - **⭐ RTL-SDR V3 leg: BOTH units DOA (2026-10-18 and 2026-10-24) — same
+     failure signature.** The replacement unit arrived 2026-10-24 and failed
+     its first test byte-identically: span 123..131, I std 0.83, `[R82XX] PLL
+     not locked!`, 88–108 MHz scan flat (0 peaks >6 dB). Two units from the
+     same listing with an identical fault = batch or counterfeit problem, not
+     bad luck. Before any third purchase from `B0BMKZCKTF`: verify Amazon
+     "Sold by" is exactly `RTL-SDR Blog` and check physical clone tells
+     (diagonal side screws = genuine; NSY QC batch sticker on back); if the
+     seller is genuinely official, escalate to RTL-SDR Blog with both DOA
+     units. Pi/ALFA environment ruled out (unit #1 failed identically on Mac
+     with stock + official Blog-fork drivers). Preparatory work that STANDs
+     for a good unit:
      - `rtl-sdr` pkg installed (Debian trixie `2.0.2`; fine for R820T/R860 —
        the R860 silicon IDs as "R820T" by design, it's the same R82xx family).
      - `/etc/modprobe.d/rtl-sdr-blacklist.conf` created (blacklist
