@@ -89,12 +89,14 @@ recorded decisions, and physical build topology.
 
 ## Progress state (durable memory — update at each session end)
 
-**As of 2026-10-04** (HEAD `6741c07` on `main`) — **BENCH.md is the live
-bring-up source of truth**; its stage headers carry the ✅/⏳ status.
+**As of 2026-10-24** — **BENCH.md is the live bring-up source of truth**;
+its stage headers carry the ✅/⏳ status.
 
-- **Hardware: ✅ ALL DELIVERED.** Every BOM row purchased 2026-09-19 (≈ $320 +
-  shipping) and arrived; no open orders. ASINs + decision history live in
-  HARDWARE.md; do not re-order or re-litigate.
+- **Hardware: 1 OPEN ORDER.** Original cart purchased 2026-09-19 (≈ $320 +
+  shipping) and delivered. Both RTL-SDR Blog V3 units were DOA, so a
+  **Nooelec NESDR SMArt v5 Bundle** was ordered 2026-10-24 ($54.95 +
+  shipping, nooelec.com) as the replacement sensor + bench control. ASINs +
+  decision history live in HARDWARE.md; do not re-order the original cart.
 - **Bench progress:**
   - Stage 0 (unbox/inspect): ✅
   - Stage 1 (Pi 5 headless, `sniffer.local`, user `otxwes`): ✅ closed 2026-10-04
@@ -103,11 +105,13 @@ bring-up source of truth**; its stage headers carry the ✅/⏳ status.
     `sniffer-monitor.service` (enabled at boot); hub must run on its own 5V/4A
     wall brick. BT killed at firmware level (`dtoverlay=disable-bt`); Pi's wlan0
     stays up as management channel (revised posture in BENCH.md).
-  - Stage 2b (RTL-SDR V3): ⚠️ **first unit DOA 2026-10-18** — cross-host
-    proof (Pi + Mac both: dead constant-rail IQ, PLL never locks, default
-    EEPROM identity); replacement/RMA in progress. `rtl-sdr` pkg + DVB
-    blacklist on the Pi stand for the replacement. Full evidence + re-test
-    recipe in BENCH.md Stage 2 item 2.
+  - Stage 2b (RTL-SDR): ⚠️ **both units DOA** — unit #1 2026-10-18, unit #2
+    (Amazon replacement) 2026-10-24, byte-identical tuner-PLL failure;
+    cross-host proof (Pi + Mac, stock + official Blog-fork drivers). Refund
+    in progress. **Nooelec NESDR SMArt v5 Bundle ordered 2026-10-24** as the
+    replacement + control; on arrival run the 4-check test in BENCH.md
+    Stage 2 — pass closes 2b and exonerates the bench, fail points at the
+    bench. `rtl-sdr` pkg + DVB blacklist on the Pi stand.
   - Stage 2c (GPS PA1616S): ⏳ not started.
   - Stage 3 (XIAO ESP32-S3 ×3 flashing): ⏳ not started.
   - Stage 4 (full hub integration): ⏳.
@@ -119,5 +123,7 @@ bring-up source of truth**; its stage headers carry the ✅/⏳ status.
   mock-serial unit tests) — do after Stage 3 flashing, against real board output.
 - **Then:** enclosure last — caliper real parts, print, snap in keystones.
 - **Standing decisions locked** (see HARDWARE.md §Decisions): S3 pair over C5/C6
-  for v1; Kismet excluded; genuine V3 over V4L; HackRF/Ubertooth/AX210 deferred.
+  for v1; Kismet excluded; HackRF/Ubertooth/AX210 deferred; SDR replacement =
+  Nooelec SMArt v5 Bundle (2026-10-24) after both Blog V3 units were DOA;
+  V4L rejected (needs Blog driver fork, dongle-only).
 

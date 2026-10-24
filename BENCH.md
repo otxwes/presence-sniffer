@@ -108,7 +108,12 @@ span devices). Revised posture:
      same listing with an identical fault = batch or counterfeit problem, not
      bad luck. (Final pre-return retest 2026-10-24 14:13 EDT: identical —
       I std 0.83, in-band ±800 kHz peak-median 2.6 dB, FM scan flat to
-      1.4 dB.) Before any third purchase from `B0BMKZCKTF`: verify Amazon
+      1.4 dB.) **Replacement ordered 2026-10-24: Nooelec NESDR SMArt v5 Bundle
+     (SKU 100700, $54.95, nooelec.com)** — different manufacturer/warehouse,
+     R820T2, stock librtlsdr, 3 SMA antennas included. The official eBay V4L
+     (`rtl-sdr-blog`, $37.95) was rejected: R828S needs the Blog driver fork
+     and ships dongle-only. If ever considering another purchase from
+     `B0BMKZCKTF`: verify Amazon
      "Sold by" is exactly `RTL-SDR Blog` and check physical clone tells
      (diagonal side screws = genuine; NSY QC batch sticker on back); if the
      seller is genuinely official, escalate to RTL-SDR Blog with both DOA
@@ -160,15 +165,17 @@ span devices). Revised posture:
      "RTL-SDR Blog V3 R860 RTL2832U 1PPM TCXO SMA ... (Dongle Only)
      (Black)" — correct V3 listing; unit is V3-family silicon.
      → DOA return/replacement (see RTL_SDR_RETURN.md).
-   - **Re-test recipe for the replacement unit (10 min):** plug in, `rtl_test`
-     (expect tuner + no persistent PLL complaint), then
-     `rtl_sdr -f 98.0M -s 2048000 -g 42 -n 4194304 /tmp/iq.bin` → analyze:
-     healthy capture has byte spread well beyond 123–132 and a spectrum with
-     dB-scale station structure. Then `rtl_power -f 88M:108M:200k -i 1 -e 10
-     -g 42 /tmp/fm.csv` → real markets show stations 20–40 dB above floor;
-     then demod an identified station with `rtl_fm -f <st>M -M fm -s 22050 -g
-     42 - | aplay`. Analyzer script: saved this session as `analyze_iq.py`
-     (bytes → byte-span / I-std / flat-spectrum verdict).
+   - **Control-unit test (Nooelec SMArt v5) — 10 min, on arrival:** plug into
+     the same Pi + powered hub, `rtl_test` (expect R820T and a locked PLL),
+     then `rtl_sdr -f 98.0M -s 2048000 -g 42 -n 4194304 /tmp/iq.bin` (wrap in
+     `timeout 8` — the tool may not stop on `-n`), then
+     `rtl_power -f 88M:108M:200k -i 1 -e 10 -g 42 /tmp/fm.csv`. Analyze both
+     with `python3 scripts/analyze_iq.py <file>` (handles .bin and .csv):
+     healthy = I std ≥5 (typ 10–30), in-band spectrum peak-median >6 dB with
+     station structure, FM scan 20–40 dB above floor. Optional demod:
+     `rtl_fm -f <st>M -M fm -s 22050 -g 42 - | aplay`. **Pass → bench
+     exonerated, this unit becomes the rf_warmth sensor, Stage 2b closes.
+     Fail → the bench (not the source) is the suspect; stop buying dongles.**
 3. **GPS PA1616S**: 9600 baud NMEA/UART → `gpsd`:
    `sudo apt install gpsd gpsd-clients && sudo gpsmon` — expect NMEA frames with
    lat/lon. Cold start needs a window seat and can take **5–15 min**; don't
