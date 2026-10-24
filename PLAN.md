@@ -124,8 +124,21 @@ its stage headers carry the ✅/⏳ status.
 - **Known enclosure consequence:** PANPEO couplers are keystone snap-in →
   `case.scad` cutout is a **keystone slot (~30×16 mm + retention lip)**, not the
   previously assumed ~22.5 mm round hole. Active Cooler blower vent also required.
-- **Deferred code item:** `SerialBleSensor` (ESP32 serial/BLE ingest parser +
-  mock-serial unit tests) — do after Stage 3 flashing, against real board output.
+- **Approved next slice (2026-10-24) — BLE listener vertical:** board 2 verified
+  on the Pi (`44:B1:76:B0:55:68` → `/dev/ttyACM1`; board 1/WiFi stays
+  `/dev/ttyACM0`). Scope:
+  1) ✅ **2026-10-24** `firmware/ble_scan` v0.1 (core BLE lib, no new
+  dependency): **passive** BLE scan, per-address dedupe/report at ~1 Hz, JSON
+  `{ts_ms, mac, rssi, name|null}` (v1 drops `addr_type` — randomized RPA
+  addresses are the norm) + heartbeat; 556,748 B / 27,520 B RAM; flashed and
+  live-verified (4 distinct devices, anonymized events flow; BENCH.md);
+  2) `SerialBleSensor` parser + unit tests (anonymize, `band="ble"`, no raw MAC
+  downstream);
+  3) aggregator `--serial-ble` running both sensors concurrently, stable
+  by-id/udev port mapping;
+  4) bench evidence of both boards live.
+  Caveat recorded: BLE random MACs inflate density/churn — density counts
+  radio endpoints, not people.
 - **Then:** enclosure last — caliper real parts, print, snap in keystones.
 - **Standing decisions locked** (see HARDWARE.md §Decisions): S3 pair over C5/C6
   for v1; Kismet excluded; HackRF/Ubertooth/AX210 deferred; SDR replacement =

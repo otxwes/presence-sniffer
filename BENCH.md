@@ -263,6 +263,44 @@ Ferrite lesson if any hub question re-opens: diagnose power budget FIRST.** Watc
 Ferrites now: snap them onto the hub's upstream USB cable and the ESP32 cables
 **if** you observe noise/hiccups. Start clean; add only if evidence appears.
 
+**Board-2 BLE plugged (2026-10-24):**
+- Second XIAO enumerates cleanly through the hub: `44:B1:76:B0:55:68` →
+  `/dev/ttyACM1`; board 1/WiFi still `/dev/ttyACM0`. Stable references are the
+  by-id links: `usb-Espressif_USB_JTAG_serial_debug_unit_<MAC>-if00`.
+- `esptool flash-id` via the by-id path on `ttyACM1`: chip confirmed
+  (`Wi-Fi, BT 5 (LE)`, 8 MB PSRAM, 40 MHz crystal), MAC matches. Port healthy.
+- BLE vertical slice approved (scope in PLAN.md). F-F Dupont jumpers for the
+  GPS still to order (Adafruit `#266`/`#1950` class; only 4 wires needed).
+
+**BLE firmware live verification (2026-10-24, board 2 = `44:B1:76:B0:55:68`):**
+- `firmware/ble_scan` v0.1 compiled clean on the Pi (Arduino CLI 1.5.1 +
+  esp32 core 3.3.12; **556,748 B flash / 27,520 B RAM**). Flashed with
+  esptool v5.6.0 through the hub on the by-id port
+  (`..._44:B1:76:B0:55:68-if00`), `--flash-mode dio --flash-freq 80m
+  --flash-size 8MB` — data hash verified, hard reset clean.
+- **Receive-only by construction:** passive scan (`setActiveScan(false)`), no
+  scan requests, no connections. Boot lines `{"boot":"ble_scan","fw":"0.1"}` +
+  `{"ready":true,"mode":"passive"}`.
+- Heartbeats every ~5.0 s: `{"hb":5581,"adverts":14}` → `{"hb":25612,
+  "adverts":59}` → `{"hb":60669,"adverts":132}`; steady **+10 adverts per 5 s
+  cycle** in a quiet home room (the 1 s scan window never stalls: hb cadence
+  exact).
+- Per-address dedupe output as designed: one `{"ts_ms","mac","rssi","name"}`
+  line per unique advertiser per 1 s window. First observed devices:
+  RSSI −92…−97 with randomized (RPA) addresses and `"name":null` — expected
+  under passive scan (no scan-response payloads).
+- **USB-CDC read quirk (not a firmware bug):** short-lived `cat` sessions
+  showed heartbeats live while event lines surfaced only in later captures'
+  buffers/backlog (e.g. a `ts_ms:37631` pair appearing in a later session).
+  Under the deployment pattern — a persistent reader — the stream is clean:
+  **41 anonymized events in 20 s from 4 distinct devices**
+  (`presence.sensors.serial_wifi` borrowed for the smoke read; raw MACs stay
+  at the sensor boundary, printer output shows only anonymized `id=`).
+  Re-verify in Stage 5 with the long-lived aggregator.
+- Those smoke ids hash under the `wifi` namespace; the real `SerialBleSensor`
+  (next slice item) will set `band="ble"`, `source="ble-esp32"`, and hash
+  under `ble`.
+
 ## Stage 5 — Smoke test with our own software
 
 Bring the pipeline's sensor input layer (`sensors/`) online against the real
