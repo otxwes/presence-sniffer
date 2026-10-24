@@ -13,6 +13,10 @@ and cannot identify specific people or device owners.
 source .venv/bin/activate
 python -m presence.aggregator --simulator          # runs sim + OSC bridge (Ctrl-C to stop)
 python -m presence.aggregator --simulator --print  # also prints events to console
+# real boards on the Pi (concurrently): serial-wifi = board 1, serial-ble = board 2
+python -m presence.aggregator --serial-wifi /dev/ttyACM0 \
+  --serial-ble "/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_44:B1:76:B0:55:68-if00" \
+  --osc-host 192.168.1.193 --osc-port 9090 --print
 ```
 
 OSC output goes to `127.0.0.1:9090`. Open `maxforlive/presence_osc.maxpat` in Max

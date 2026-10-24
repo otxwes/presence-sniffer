@@ -315,6 +315,25 @@ Ferrites now: snap them onto the hub's upstream USB cable and the ESP32 cables
   wifi-namespace smoke run — BLE/WiFi id separation confirmed live. Printed
   output carries only `id=` — no raw MAC downstream.
 
+**Aggregator `--serial-ble` + both boards live (2026-10-24):**
+- TDD: 6 wiring tests for `build_serial_sensors` written first, watched RED
+  (ImportError), then implemented — simulator consumes the pipeline
+  exclusively; serial sensors stack concurrently. Full suite **54 passed**
+  in Mac + Pi venvs (same single pre-existing test_core warning).
+- Feed restarted with both ports; banner:
+  `aggregator: sensors wifi=/dev/ttyACM0, ble-esp32=/dev/serial/by-id/
+  usb-Espressif_USB_JTAG_serial_debug_unit_44:B1:76:B0:55:68-if00`
+  By-id paths chosen instead of extra udev rules: MAC-derived and stable.
+- **45 events in the first ~14 s; snapshots settle at density=4** (the four
+  nearby BLE advertisers) with churn 0.17/s and prox 0.06–0.09; OSC bridge
+  unchanged (→ 192.168.1.193:9090). Density is visibly alive now: BLE keeps
+  the 6 s window fed where sparse WiFi probes sat at 0.
+- Ops lesson: `cd X && nohup Y … &` backgrounds a *bash wrapper*, so `$!`,
+  and therefore `/tmp/feed.pid`, caught the wrapper pid (2552094) instead of
+  the python feed (2552096). Fixed the pid file and the launch pattern —
+  use `cd X; nohup Y & echo $!` so `$!` is the python pid.
+- Cosmetic: `python -m` RuntimeWarning on start is pre-existing and harmless.
+
 ## Stage 5 — Smoke test with our own software
 
 Bring the pipeline's sensor input layer (`sensors/`) online against the real

@@ -135,9 +135,12 @@ its stage headers carry the ✅/⏳ status.
   2) ✅ **2026-10-24** `SerialBleSensor` parser + 18 TDD tests (anonymize,
   `band="ble"`, `source="ble-esp32"`, no raw MAC downstream); live-verified
   on board 2 (53 events / 15 s, 4 devices; suite 48 passed both venvs);
-  3) aggregator `--serial-ble` running both sensors concurrently, stable
-  by-id/udev port mapping;
-  4) bench evidence of both boards live.
+  3) ✅ **2026-10-24** aggregator `--serial-ble` running both sensors
+  concurrently (`build_serial_sensors`, 6 TDD tests; suite 54 passed);
+  stable by-id ports chosen instead of extra udev rules (MAC-derived);
+  4) ✅ **2026-10-24** bench evidence of both boards live: 45 events / 14 s,
+  snapshots sustained at density=4 (BLE keeps the window fed where WiFi-only
+  sat at 0); OSC unchanged; BENCH.md.
   Caveat recorded: BLE random MACs inflate density/churn — density counts
   radio endpoints, not people.
 - **Then:** enclosure last — caliper real parts, print, snap in keystones.

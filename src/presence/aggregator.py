@@ -76,6 +76,31 @@ class Aggregator:
                       file=sys.stderr)
 
 
+def build_serial_sensors(
+    bus: EventBus,
+    serial_wifi: Optional[str],
+    serial_ble: Optional[str],
+    simulator: bool,
+) -> list:
+    """Resolve CLI sensor configuration into concrete sensor instances.
+
+    The simulator consumes the whole pipeline exclusively; multiple serial
+    sensors run concurrently on the same bus (one ESP32 per radio role).
+    """
+    if simulator:
+        return []
+    sensors = []
+    if serial_wifi:
+        from .sensors.serial_wifi import SerialWifiSensor
+
+        sensors.append(SerialWifiSensor(bus, port=serial_wifi))
+    if serial_ble:
+        from .sensors.ble_sensor import SerialBleSensor
+
+        sensors.append(SerialBleSensor(bus, port=serial_ble))
+    return sensors
+
+
 async def main() -> None:
     parser = argparse.ArgumentParser(description="presence-sniffer aggregator")
     parser.add_argument("--simulator", action="store_true", help="use built-in device simulator")
@@ -86,6 +111,11 @@ async def main() -> None:
         "--serial-wifi",
         metavar="PORT",
         help="read ESP32 probe-request JSON from this serial port",
+    )
+    parser.add_argument(
+        "--serial-ble",
+        metavar="PORT",
+        help="read ESP32 BLE advert JSON from this serial port",
     )
     args = parser.parse_args()
 
@@ -131,20 +161,27 @@ async def main() -> None:
 
         tasks.append(asyncio.create_task(pump()))
         print("aggregator: simulator running", file=sys.stderr)
-    elif args.serial_wifi:
-        from .sensors.serial_wifi import SerialWifiSensor
-
-        sensor = SerialWifiSensor(bus, port=args.serial_wifi)
-        tasks.append(asyncio.create_task(sensor.run()))
-        print(
-            f"aggregator: serial wifi sensor on {args.serial_wifi}",
-            file=sys.stderr,
-        )
     else:
-        print(
-            "aggregator: no sensor wired yet - run with --simulator or --serial-wifi",
-            file=sys.stderr,
+        sensors = build_serial_sensors(
+            bus,
+            serial_wifi=args.serial_wifi,
+            serial_ble=args.serial_ble,
+            simulator=args.simulator,
         )
+        if not sensors:
+            print(
+                "aggregator: no sensor wired yet - run with --simulator, "
+                "--serial-wifi, or --serial-ble",
+                file=sys.stderr,
+            )
+        else:
+            for sensor in sensors:
+                tasks.append(asyncio.create_task(sensor.run()))
+            print(
+                "aggregator: sensors "
+                + ", ".join(f"{s.source}={s.port}" for s in sensors),
+                file=sys.stderr,
+            )
 
     await stop.wait()
     for t in tasks:
