@@ -210,6 +210,8 @@ span devices). Revised posture:
   (GigaDevice `c8 4017`, quad), 8 MB PSRAM, USB-Serial/JTAG. SUNGUY cable =
   data cable. `flash-id` + 4 KB scratch write → read → byte-compare → restore
   at `0x7FF000` all verified through the powered hub. ✅ ready for firmware.
+- **Board 2** — MAC `44:b1:76:b0:55:68`; same chip/flash; `flash-id` +
+  scratch write/read/restore ✅.
 - **Tooling:** apt `esptool` 4.7.0 is missing `stub_flasher_32s3.json`
   (Debian packaging bug); use `~/.venvs/esptool/bin/esptool` (v5.6.0,
   installed 2026-10-24). Stub flasher works; commands are hyphenated

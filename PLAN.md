@@ -115,7 +115,8 @@ its stage headers carry the ✅/⏳ status.
   - Stage 2c (GPS PA1616S): ⏳ not started.
   - Stage 3 (XIAO ESP32-S3 ×3 flashing): ⏳ **board 1 verified 2026-10-24**
     (MAC `b8:1f:3f:d9:28:d8`, 8 MB flash; scratch write/read/restore ✅
-    through the hub); boards 2–3 pending.
+    through the hub); **board 2 verified 2026-10-24** (MAC
+    `44:b1:76:b0:55:68`); board 3 pending.
   - Stage 4 (full hub integration): ⏳.
   - Stage 5 (smoke test with `presence/sensors`): ⏳.
 - **Known enclosure consequence:** PANPEO couplers are keystone snap-in →
