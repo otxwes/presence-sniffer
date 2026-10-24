@@ -301,6 +301,20 @@ Ferrites now: snap them onto the hub's upstream USB cable and the ESP32 cables
   (next slice item) will set `band="ble"`, `source="ble-esp32"`, and hash
   under `ble`.
 
+**SerialBleSensor parser (2026-10-24):**
+- TDD: 18 unit tests written first, watched fail (ImportError = missing
+  `parse_ble_line`), then implemented — full suite **48 passed** in both the
+  Mac `.venv` and the Pi venv (one pre-existing `PytestReturnNotNoneWarning`
+  in `tests/test_core.py`, unrelated to this slice).
+- `parse_ble_line`: validates JSON-object + MAC + numeric RSSI, tolerates
+  `null`/missing/empty `name`, hashes under the `ble` namespace, sets
+  `band="ble"` / `source="ble-esp32"`, and drops heartbeats/boot/ready lines.
+- Live bench, board 2 via the by-id port, 15 s: **53 events, 4 distinct
+  devices** (RSSI −89…−98); the same id repeats at exactly the 1 Hz dedupe
+  cadence (…657→…658, `id=9f75a7fee116`), and device ids differ from the
+  wifi-namespace smoke run — BLE/WiFi id separation confirmed live. Printed
+  output carries only `id=` — no raw MAC downstream.
+
 ## Stage 5 — Smoke test with our own software
 
 Bring the pipeline's sensor input layer (`sensors/`) online against the real

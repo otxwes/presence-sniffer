@@ -132,8 +132,9 @@ its stage headers carry the ✅/⏳ status.
   `{ts_ms, mac, rssi, name|null}` (v1 drops `addr_type` — randomized RPA
   addresses are the norm) + heartbeat; 556,748 B / 27,520 B RAM; flashed and
   live-verified (4 distinct devices, anonymized events flow; BENCH.md);
-  2) `SerialBleSensor` parser + unit tests (anonymize, `band="ble"`, no raw MAC
-  downstream);
+  2) ✅ **2026-10-24** `SerialBleSensor` parser + 18 TDD tests (anonymize,
+  `band="ble"`, `source="ble-esp32"`, no raw MAC downstream); live-verified
+  on board 2 (53 events / 15 s, 4 devices; suite 48 passed both venvs);
   3) aggregator `--serial-ble` running both sensors concurrently, stable
   by-id/udev port mapping;
   4) bench evidence of both boards live.
