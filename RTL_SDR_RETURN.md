@@ -50,10 +50,13 @@ driver loads, but it never produces usable RF data:
 - Driver conflicts — the DVB-T kernel driver (`dvb_usb_rtl28xxu`) is
   blacklisted; the dongle is claimed directly by librtlsdr.
 - Usage error — tested across the full gain range and multiple frequencies
-  (88–434 MHz) with the supplied antenna. HF direct-sampling mode is not
-  relevant: it only applies below 28.8 MHz and none of the tests or the
-  intended use (VHF/UHF/ISM) are in that range. Bias tee is not used
-  (passive antenna) and remains off.
+  (88–434 MHz). No antenna is needed to expose this fault: a healthy
+  RTL-SDR produces amplified thermal noise even with an open SMA input,
+  while these units sit at the 8-bit quantization floor. (The order is
+  dongle-only; the Wi-Fi antennas on hand are RP-SMA and do not fit the SMA
+  jack.) HF direct-sampling mode is not relevant: it only applies below
+  28.8 MHz and none of the tests or the intended use (VHF/UHF/ISM) are in
+  that range. Bias tee is not used (passive antenna) and remains off.
 
 ## Notes
 
