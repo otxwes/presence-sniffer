@@ -113,10 +113,12 @@ its stage headers carry the ✅/⏳ status.
     Stage 2 — pass closes 2b and exonerates the bench, fail points at the
     bench. `rtl-sdr` pkg + DVB blacklist on the Pi stand.
   - Stage 2c (GPS PA1616S): ⏳ not started.
-  - Stage 3 (XIAO ESP32-S3 ×3 flashing): ✅ **2026-10-24 (hardware)** — all
-    three boards flash-verified through the hub (MACs `b8:1f:3f:d9:28:d8`
-    = WiFi, `44:b1:76:b0:55:68` = BLE, `44:b1:76:ae:d5:0c` = spare; 8 MB
-    flash + 8 MB PSRAM each). Firmware (WiFi promiscuous + BLE scan) next.
+  - Stage 3 (XIAO ESP32-S3 ×3): ✅ **2026-10-24** — all three boards
+    flash-verified (MACs `b8:1f:3f:d9:28:d8` = WiFi, `44:b1:76:b0:55:68` =
+    BLE, `44:b1:76:ae:d5:0c` = spare; 8 MB flash + 8 MB PSRAM each). WiFi
+    `wifi_probe` firmware verified live on board 3 (spare): real probe
+    requests captured, host adapter + aggregator end-to-end, 30 tests pass.
+    Flash the same image to board 1 for the WiFi role; BLE listener next.
   - Stage 4 (full hub integration): ⏳.
   - Stage 5 (smoke test with `presence/sensors`): ⏳.
 - **Known enclosure consequence:** PANPEO couplers are keystone snap-in →

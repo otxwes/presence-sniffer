@@ -189,7 +189,7 @@ span devices). Revised posture:
    Dupont jumpers (~$7)**. `enable_uart=1` applied + rebooted same day →
    `/dev/ttyAMA0` live, `gpsd` pre-pointed at it — soldering day = wire + go.
 
-## Stage 3 — ESP32 boards (~15 min each) ✅ flash-verified 2026-10-24
+## Stage 3 — ESP32 boards (~15 min each) ✅ firmware-verified 2026-10-24
 
 1. **First: flash a trivial sketch through each SUNGUY cable** — a successful
    esptool flash is the physical proof the cable is a data cable (spec says
@@ -217,11 +217,32 @@ span devices). Revised posture:
 
 **All three boards verified 2026-10-24** — same ESP32-S3 v0.2, 8 MB flash,
 8 MB PSRAM; all flash through the hub. Hardware side of Stage 3 done;
-firmware next.
+WiFi firmware verified live on board 3 (below).
 - **Tooling:** apt `esptool` 4.7.0 is missing `stub_flasher_32s3.json`
   (Debian packaging bug); use `~/.venvs/esptool/bin/esptool` (v5.6.0,
   installed 2026-10-24). Stub flasher works; commands are hyphenated
   (`flash-id`, `read-flash`, `write-flash`).
+
+**WiFi firmware live verification (2026-10-24, board 3 = spare):**
+- `wifi_probe` compiles clean (Arduino CLI 1.5.1 + esp32 3.3.12; 839,804 B
+  flash / 44,664 B RAM). First flash used esptool `--flash-mode qio`, which
+  patched the DIO bootloader header → the ROM hung on the second bootloader
+  segment (`TG0WDT_SYS_RST`, `ets_loader.c 78`). Reflashed with
+  `--flash-mode dio` (matching the compiled image) → boots and stays up.
+- Live serial: boot/ready lines plus `{"hb":...,"probes":...}` every 5 s.
+  A Pi `iw dev wlan0 scan` produced real wildcard probe requests from the
+  Pi's own `wlan0` (`88:a2:9e:6a:5a:94`) on channels 5/11, RSSI −91…−97 dBm;
+  the board's probe counter reached 37.
+- Host adapter: 7 probe lines parsed; stable anonymized id `ad136f4e2af4`;
+  no raw MAC appeared in adapter output.
+- Aggregator: `--serial-wifi /dev/ttyACM0 --print` → 20 `[event]` lines and
+  89 `[snapshot]` lines in 45 s, no errors.
+- Tests: **30 passed** in both the Mac `.venv` and the Pi venv.
+- The TX-space guard can drop a few lines under pressure (counter advanced
+  13→37 while the aggregator printed 20 events); acceptable for bench,
+  revisit if exact delivery becomes a requirement.
+- **Board 1 (WiFi role) still needs this image**; board 3 (spare) was the
+  bring-up board. Board 2 (BLE) firmware remains next.
 
 ## Stage 4 — Full integration (~30 min)
 
