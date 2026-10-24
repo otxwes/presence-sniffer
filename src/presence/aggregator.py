@@ -82,6 +82,11 @@ async def main() -> None:
     parser.add_argument("--print", dest="print_events", action="store_true")
     parser.add_argument("--osc-host", default="127.0.0.1")
     parser.add_argument("--osc-port", type=int, default=9090)
+    parser.add_argument(
+        "--serial-wifi",
+        metavar="PORT",
+        help="read ESP32 probe-request JSON from this serial port",
+    )
     args = parser.parse_args()
 
     logging_setup()
@@ -126,8 +131,20 @@ async def main() -> None:
 
         tasks.append(asyncio.create_task(pump()))
         print("aggregator: simulator running", file=sys.stderr)
+    elif args.serial_wifi:
+        from .sensors.serial_wifi import SerialWifiSensor
+
+        sensor = SerialWifiSensor(bus, port=args.serial_wifi)
+        tasks.append(asyncio.create_task(sensor.run()))
+        print(
+            f"aggregator: serial wifi sensor on {args.serial_wifi}",
+            file=sys.stderr,
+        )
     else:
-        print("aggregator: no sensor wired yet - run with --simulator", file=sys.stderr)
+        print(
+            "aggregator: no sensor wired yet - run with --simulator or --serial-wifi",
+            file=sys.stderr,
+        )
 
     await stop.wait()
     for t in tasks:

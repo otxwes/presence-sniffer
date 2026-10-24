@@ -41,6 +41,7 @@ class PresenceEvent:
     rssi: float = -100.0              # dBm of the strongest frame we saw
     band: str = "2.4g"                # '2.4g', '5g', 'ble', or e.g. '470mhz'
     name: Optional[str] = None        # advertised name (may be None; not identifying)
+    ssid: Optional[str] = None        # Wi-Fi probe SSID (network sought; not an identity)
     ts: float = field(default_factory=time.time)
 
     @property
