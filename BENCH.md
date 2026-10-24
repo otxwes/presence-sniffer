@@ -86,6 +86,17 @@ span devices). Revised posture:
      beacons visible (incl. WiZ smart-bulb APs). Fully validated.
    - **Persistence**: `/etc/systemd/system/sniffer-monitor.service`
      (enabled; oneshot down → set type monitor → up at every boot).
+     **Boot-race fixed 2026-10-24:** the oneshot fired before USB enumeration
+     ("Cannot find device wlan1" at boot → service stayed failed with no retry;
+     wireless silently stayed in managed mode for days). Added an ExecStartPre
+     wait loop (up to 30 s for `wlan1` to appear). Verified by reboot.
+     **NM reclaim fixed 2026-10-24:** NetworkManager was forcing wlan1 back to
+     managed ~4 s after the service ran (its supplicant attaches when NM
+     startup completes; monitor mode ≠ managed mode so NM re-inits it). Created
+     `/etc/NetworkManager/conf.d/wlan1-unmanaged.conf`:
+     `[keyfile]` / `unmanaged-devices=interface-name:wlan1` + NM reload —
+     wlan1 now never touched by NM (SSH stays on onboard wlan0). Verified by
+     reboot: monitor mode ch1 persists with zero manual steps.
 2. **RTL-SDR V3**: `sudo apt install rtl-sdr` (blacklist the DVB-T TV driver if
    prompted, first run). `rtl_test` → expect R860 tuner; watch gain outputs.
    Confirm tuning across our bands (VHF/UHF/ISM):
