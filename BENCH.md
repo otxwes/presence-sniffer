@@ -106,7 +106,9 @@ span devices). Revised posture:
      its first test byte-identically: span 123..131, I std 0.83, `[R82XX] PLL
      not locked!`, 88–108 MHz scan flat (0 peaks >6 dB). Two units from the
      same listing with an identical fault = batch or counterfeit problem, not
-     bad luck. Before any third purchase from `B0BMKZCKTF`: verify Amazon
+     bad luck. (Final pre-return retest 2026-10-24 14:13 EDT: identical —
+      I std 0.83, in-band ±800 kHz peak-median 2.6 dB, FM scan flat to
+      1.4 dB.) Before any third purchase from `B0BMKZCKTF`: verify Amazon
      "Sold by" is exactly `RTL-SDR Blog` and check physical clone tells
      (diagonal side screws = genuine; NSY QC batch sticker on back); if the
      seller is genuinely official, escalate to RTL-SDR Blog with both DOA

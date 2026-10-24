@@ -15,6 +15,8 @@ healthy ≥5), and a completely flat 88–108 MHz scan (zero peaks >6 dB above
 floor) — measured on the same Pi + powered hub that runs a Wi-Fi adapter
 normally. Two consecutive units from the same listing with a byte-identical
 fault indicate a batch or counterfeit problem rather than a single-unit DOA.
+A final pre-return retest on 2026-10-24 14:13 EDT reproduced the same
+result (I std 0.83, in-band peak-median 2.6 dB, FM scan flat to 1.4 dB).
 Requesting a refund; will verify the seller channel before repurchasing.
 
 ## Symptom summary (for the seller)
