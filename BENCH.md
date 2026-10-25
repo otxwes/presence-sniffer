@@ -349,6 +349,19 @@ Ferrites now: snap them onto the hub's upstream USB cable and the ESP32 cables
 - Note: the feed does not auto-start on boot. After a Pi reboot, relaunch with
   both by-id paths (README quick-start).
 
+**ALFA 5 GHz yield probe (2026-10-24):**
+- 45 s Scapy capture on the idle `wlan1` (monitor, 5 GHz hop incl. DFS):
+  **1,235 frames; 4 probe requests from 1 unique device** (RSSI −59 dBm);
+  **109 beacons / 18 unique BSSIDs**; ≈27 frames/s. All channel hops
+  succeeded (no `iw` errors). BPF `wlan` filter is rejected on this link
+  type ("link layer applied in wrong context") — capture unfiltered and
+  filter in Python; 27 frames/s is trivial.
+- Practical read: a 5 GHz probe sensor would add only ~1 device in this
+  quiet room, so density/churn/proximity barely change. The continuous,
+  musically useful signal is the **environment** (AP count + frame/airtime
+  rate), not another probe-request source. Data-frame client counting is a
+  possible later layer; not v1.
+
 ## Stage 5 — Smoke test with our own software
 
 Bring the pipeline's sensor input layer (`sensors/`) online against the real
