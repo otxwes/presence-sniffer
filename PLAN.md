@@ -143,6 +143,17 @@ its stage headers carry the ✅/⏳ status.
   sat at 0); OSC unchanged; BENCH.md.
   Caveat recorded: BLE random MACs inflate density/churn — density counts
   radio endpoints, not people.
+- **ALFA environment slice (decided 2026-10-24, not started):** use the ALFA
+  (`wlan1`, monitor) as a **WiFi-environment sensor**, not a second presence
+  sensor. First metrics: `wifi_aps` (unique BSSIDs) and `wifi_busy`
+  (non-beacon frame rate/airtime, excluding the Pi's own MAC/BSSID), 5 GHz
+  first; optional 2.4 GHz AP beacons and `wifi_5g_share` later. Root Scapy
+  capture → localhost UDP → aggregator → OSC `/wifi_aps`, `/wifi_busy`;
+  existing density/churn/proximity untouched. Evidence: 45 s idle capture
+  saw **1 unique 5 GHz probe device vs 18 BSSIDs and ~27 frames/s**
+  (BENCH.md) — the environment layer is the real enrichment.
+  Nooelec SDR later: Stage 2b four-check control test first (unit #2 refund
+  held), then `rf_warmth`/RF environment; it cannot see 2.4/5 GHz WiFi/BLE.
 - **Then:** enclosure last — caliper real parts, print, snap in keystones.
 - **Standing decisions locked** (see HARDWARE.md §Decisions): S3 pair over C5/C6
   for v1; Kismet excluded; HackRF/Ubertooth/AX210 deferred; SDR replacement =
