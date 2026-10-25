@@ -334,6 +334,21 @@ Ferrites now: snap them onto the hub's upstream USB cable and the ESP32 cables
   use `cd X; nohup Y & echo $!` so `$!` is the python pid.
 - Cosmetic: `python -m` RuntimeWarning on start is pre-existing and harmless.
 
+**Antenna effect (2026-10-24, board 1):**
+- Board 1's included 2.4 GHz FPC/u.FL antenna is now attached. The XIAO
+  ESP32-S3 has no onboard antenna — the radio is routed to the U.FL jack, so
+  the included strip is required, not optional.
+- Pi rebooted during the change; feed restarted with **by-id paths for both
+  boards** (pid 35386) so enumeration order can never swap the roles.
+- Same Pi `iw scan` self-test, board 1 WiFi probe RSSI: **−79…−87 dBm →
+  −31…−37 dBm**; proximity **0.16–0.26 → 0.79–0.86**; snapshot density 4 → 5
+  during the scan. Roughly 45–50 dB recovered — the missing antenna was the
+  dominant loss, not the board or firmware.
+- Board 2 (BLE) still has **no antenna**; its advertisers remain −89…−98 dBm.
+  Attach board 2's antenna next and re-measure.
+- Note: the feed does not auto-start on boot. After a Pi reboot, relaunch with
+  both by-id paths (README quick-start).
+
 ## Stage 5 — Smoke test with our own software
 
 Bring the pipeline's sensor input layer (`sensors/`) online against the real
