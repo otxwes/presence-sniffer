@@ -112,6 +112,10 @@ its stage headers carry the ✅/⏳ status.
     replacement + control; on arrival run the 4-check test in BENCH.md
     Stage 2 — pass closes 2b and exonerates the bench, fail points at the
     bench. `rtl-sdr` pkg + DVB blacklist on the Pi stand.
+    **2026-11-08 update:** Nooelec control test on the hub FAILED with the
+    identical signature (PLL not locked, I std 0.930, span 123..132, FM
+    scan 1.1 dB) → **bench suspect** per the rule; do not return unit #2 or
+    buy another dongle. Isolate hub port/cable → direct Pi USB → Mac.
   - Stage 2c (GPS PA1616S): ⏳ not started.
   - Stage 3 (XIAO ESP32-S3 ×3): ✅ **2026-10-24** — all three boards
     flash-verified (MACs `b8:1f:3f:d9:28:d8` = WiFi, `44:b1:76:b0:55:68` =
