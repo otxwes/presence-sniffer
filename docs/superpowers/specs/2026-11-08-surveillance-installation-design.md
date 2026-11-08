@@ -138,6 +138,11 @@ Purity Room is the control/fallback; the Mirror is the later gallery-scale evolu
 5. **The loop.** The piece returns to the clean room; the cycle can repeat. A 10-minute loop
    is the prototype; a gallery version can run longer with a slower arc.
 
+**Prototype arc:** the 10-minute version is a composed state machine/sequencer (clean →
+arrival → shadow → experiment → return) that sensor data modulates; the long-run gallery
+version can be a reactive always-on mode once the arc is proven. Live sensing does not
+produce a narrative by itself.
+
 ### 5.2 Signal → sound mapping (v1)
 
 | Signal | Sound / visual role | Notes |
@@ -146,12 +151,30 @@ Purity Room is the control/fallback; the Mirror is the later gallery-scale evolu
 | `churn` | New voice articulations / onsets | New arrivals; rate-limited; not every BLE repeat. |
 | `proximity` | Brightness / filter / register | Closest device; smooth; avoid jitter. |
 | `band_balance` | BLE vs WiFi color | BLE-dominant = choir; WiFi-dominant = shadow; use as a slow color, not the only shadow control. |
-| `purity` / `interference` | Master corrosion/clarity | The core mechanic; slow attack/fast release already in `PurityCalculator`; route `/purity` and `/interference` into the Max patch. |
+| `purity` / `interference` | Master corrosion/clarity | The core mechanic; **fast attack (degrade quickly) / slow release (recover slowly)** — the code is the source of truth; route `/purity` and `/interference` into the Max patch. Baseline-relative (see §5.2b). |
 | `wifi_aps` | Infrastructure/harmonic density | AP count; slow; adds shadow/harmonic weight. |
 | `wifi_busy` | Shadow texture / delay / filter movement | Non-beacon frames/sec; dynamic; the “surveillance weather.” |
 | `rf_warmth` | RF bed / pitch drift | 0..1; slow; the wideband RF weather. |
 | `by_class` | Optional later | Current BLE class is unknown; a light name/company classifier could give phones/watches/earbuds different voices. Not required for v1. |
 | `surveillance_*` | Not used | Police-proxy research stays out of the installation. |
+
+### 5.2b Baseline, shadow gating, and legibility
+
+- **Clean = baseline, not zero.** The room will already contain ambient BLE/WiFi from the
+  building and neighbours (home baseline density 33–35; `PurityCalculator` currently
+  saturates at 10 devices, giving purity ≈0.31 at rest). The prototype must capture a
+  baseline at install/session start and map the audience's **delta** against it; otherwise
+  the "clean" state is unreachable. The `PurityCalculator` needs a baseline/normalization
+  step (implementation plan).
+- **The environment sets character, not the amount.** `rf_warmth` (FM band), `wifi_aps`,
+  and `wifi_busy` are audience-independent "weather." The shadow's **level** must be gated
+  by the presence-derived `interference`/purity so deactivation audibly clears the room;
+  the environment layers shape its timbre/texture.
+- **Room-level, not per-person.** Density counts hashed endpoints, not people (one phone
+  can be two ids; BLE randomizes). One person off in a group of 5 changes density by ~1/35.
+  The prototype should use a small group (3–5), an RSSI/placement gate so the room's own
+  devices dominate, and a room-level visual. Per-visitor feedback is not promised; the
+  piece is an aggregate mirror.
 
 ### 5.3 Sound design
 
@@ -195,6 +218,10 @@ Purity Room is the control/fallback; the Mirror is the later gallery-scale evolu
   the piece should not secretly record or identify.
 - The intervention is a mirror, not a scold: the clean state should be inviting, the shadow
   should be thought-provoking, and deactivation should feel like agency, not punishment.
+- **Room-scale presence, building-scale weather.** The presence/voices are gated to the
+  room (RSSI floor, antenna placement, excluding static infrastructure); the building's
+  APs/RF are the background "weather" layer, not audience presence. This keeps the
+  audience's actions dominant and makes the consent story about the room, not passers-by.
 
 ### 5.6 Technical architecture
 
@@ -204,7 +231,9 @@ Purity Room is the control/fallback; the Mirror is the later gallery-scale evolu
   `--wifi-env-port 9998`, `--rf-warmth`; OSC to the Mac; `--print` for logs.
 - **Audio:** Mac/Ableton/Max; the Max patch routes `/density`, `/churn`, `/proximity`,
   `/band_balance`, `/rf_warmth`, `/wifi_aps`, `/wifi_busy`; **add `/purity` and
-  `/interference`**; map to the Choir instrument.
+  `/interference`**; map to the Choir instrument. **Confirm Ableton Live Suite + Max for
+  Live (or a Max 8 licence)**; if unavailable, the instrument/visual must be a Max
+  standalone or Pd, which changes the auto-start/runbook.
 - **Visual:** a simple meter first; the full visualizer later; the same OSC feed.
 - **Reliability:** systemd target for the feed and the root `wifi_env`; ALFA monitor
   service/udev recovery; Nooelec/`rtl_power` watchdog; static IP/DHCP reservation for the
@@ -221,9 +250,10 @@ Purity Room is the control/fallback; the Mirror is the later gallery-scale evolu
   state feel like a reward? Do they understand what is sensed and what is not? Is the sound
   compelling for 10 minutes? Does the visual help or distract? Does the rig survive the
   session?
-- Capture: a short questionnaire/interview; a recording; the `purity`/density logs; the
-  technical incidents. Iterate the mapping and the signage before the full visual/reliability
-  build.
+- Capture a **line-out/board recording of the piece's own audio** (not a room microphone;
+  no visitor speech), the questionnaire/interview (consented), the `purity`/density logs,
+  and the technical incidents. Iterate the mapping and the signage before the full
+  visual/reliability build.
 
 ## 6. Risks and mitigations
 
@@ -233,9 +263,9 @@ Purity Room is the control/fallback; the Mirror is the later gallery-scale evolu
 | Ambiguous incentive | Balance the shadow; make the visibility meter legible; test whether people experiment. |
 | The piece itself surveils | Aggregate/local; hashed IDs; no content/cameras/cloud; signage; no police-proxy lane. |
 | Proxy mistaken for census | Label “signals,” not people; explain WiFi/BLE limits; no 1:1 claims. |
-| Unreliable install | systemd/auto-start; ALFA/Nooelec watchdogs; fallback simulator; runbook; test. |
+| Unreliable install | systemd/auto-start; ALFA/Nooelec watchdogs; fallback = composed "honest" bed + status cue (no simulator on the gallery floor; simulator test-only); runbook; test. |
 | Club context | This design is for a gallery/installation; a club version is a different piece. |
-| Sound design too pleasant/too harsh | Audience test; the `purity` slow attack/fast release; the shadow musical, not noise. |
+| Sound design too pleasant/too harsh | Audience test; the `purity` fast attack/slow release; the shadow musical, not noise. |
 | Class mapping absent | Aggregate voices for v1; optional BLE name/company classifier later. |
 | Visual scope creep | Simple meter first; full constellation later. |
 
@@ -249,16 +279,33 @@ Purity Room is the control/fallback; the Mirror is the later gallery-scale evolu
 - The systemd/auto-start/watchdog/fallback implementation and the runbook.
 - The gallery calibration procedure and the 3–5 person test protocol.
 - The optional BLE class classifier and the later Mirror/visualizer.
+- Minor calls already settled: sensor failure = honest composed bed + status cue (no
+  floor simulator); evaluation recording = line-out only; purity envelope = fast attack /
+  slow release (the code is the source of truth).
 
-## 8. Open questions for the human
+## 8. Builder-check decisions (need the human)
 
-1. Is the first prototype in an actual gallery/installation space, or a stand-in? What are
-   the room, speaker layout, and audience flow?
-2. What is the desired sound world: ambient/meditative, choral/uncanny, rhythmic, or
-   something else? The Choir can lean in several directions.
-3. How explicit should the surveillance framing be in the signage/title? The piece should be
-   transparent, but the tone (poetic vs direct) is an authorial choice.
-4. Is the first visual a simple meter, or do you want the constellation/radar from the start?
-5. What is the timeline and budget for the prototype vs the full installation?
-6. Should the first prototype use the Choir only, or also run the Purity Room as a
-   side-by-side control for audience testing?
+The design reviewer found six decisions that change the build. My recommendation is in
+brackets.
+
+1. **Clean room = baseline or literal zero?** [Baseline/delta: capture the room at session
+   start; the audience's additions are the signal; the `PurityCalculator` gets a baseline.]
+2. **Do the environment layers recede when devices are off?** [No — they set the shadow's
+   character; the presence-derived `interference`/purity gates the shadow's level so
+   deactivation clears the room.]
+3. **Per-visitor legibility or room-level?** [Room-level aggregate + small-group/RSSI-gated
+   test; no per-person promise.]
+4. **10-minute loop = composed arc or reactive?** [Composed state machine for the
+   prototype; reactive always-on for the gallery later.]
+5. **Sensing boundary: this room or the building?** [Room-scale presence; building APs/RF
+   as background weather; venue consent/signage.]
+6. **Ableton Suite + Max for Live available?** [Confirm; else Max standalone/Pd.]
+
+### Design choices still open
+
+- Venue/room, speaker layout, and audience flow.
+- Sound world: ambient/meditative, choral/uncanny, or rhythmic.
+- Signage tone: poetic vs direct.
+- Visual v1: simple meter vs constellation/radar.
+- Timeline and budget for the prototype vs the full installation.
+- Choir only, or Choir plus the Purity Room as a side-by-side control.
