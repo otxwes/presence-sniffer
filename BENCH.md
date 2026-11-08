@@ -206,6 +206,19 @@ span devices). Revised posture:
   connector can be marginal — use a vertical/high-quality short extension
   if needed; the direct-Pi test had 0 sample loss, so the USB link is clean
   and the IQ rail/PLL still points at tuner/driver.
+- **2026-11-08 new-port retest — PASS:** after swapping the hub and
+  Nooelec ports, the Nooelec works: I std **98.093**, span 0..255,
+  spectrum peak-median **21.5 dB** (in-band 21.9), **STRUCTURE PRESENT**;
+  FM scan floor 6.5 / max 18.9 / peak-median **12.4 dB**, **PEAKS
+  PRESENT**. `rtl_test` still prints `PLL not locked` — cosmetic; the
+  IQ/FM are the real test. The earlier failures were the USB
+  port/connection. **Stage 2b closes; the Nooelec becomes the rf_warmth
+  sensor.** Blog V3 already returned.
+- **ALFA replug (2026-11-08):** hotplug came up managed/down; the oneshot
+  `sniffer-monitor` service does not re-run. `systemctl restart
+  sniffer-monitor` restored monitor mode (ch1, 22 dBm); ch6 captured
+  beacons, ch36 captured probe requests. Restart the service after
+  replugging the ALFA.
 
 3. **GPS PA1616S**: 9600 baud NMEA/UART → `gpsd`:
    `sudo apt install gpsd gpsd-clients && sudo gpsmon` — expect NMEA frames with
