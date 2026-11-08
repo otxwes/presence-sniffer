@@ -232,7 +232,8 @@ span devices). Revised posture:
 - Snapshot example: `density=35 churn=1.33 prox=0.525 aps=5 busy=18.4
   warmth=0.5`.
 - OSC adds `/wifi_aps`, `/wifi_busy` (raw values) alongside `/rf_warmth`;
-  the Max starter patch still needs those two routes/number boxes.
+  the Max patch now routes/displays all three (`number`/`flonum` boxes),
+  with mapping notes updated.
 - Tests: **65 passed** in Mac `.venv` and Pi venv (11 new).
 
 3. **GPS PA1616S**: 9600 baud NMEA/UART → `gpsd`:

@@ -168,7 +168,7 @@ its stage headers carry the ✅/⏳ status.
   `wifi_env` capture (aps 4→8, busy 2.2→46.0); `--rf-warmth` Nooelec
   `rtl_power` (rf_warmth 0.49–0.50); BLE antenna attached → density 33–35;
   snapshot `density=35 ... aps=5 busy=18.4 warmth=0.5`; 65 tests.
-  Max patch needs `/wifi_aps`/`/wifi_busy` routes.
+  Max patch routes/displays `/wifi_aps`, `/wifi_busy`, `/rf_warmth`.
   Nooelec SDR later: Stage 2b four-check control test first (unit #2 refund
   held), then `rf_warmth`/RF environment; it cannot see 2.4/5 GHz WiFi/BLE.
 - **Then:** enclosure last — caliper real parts, print, snap in keystones.
