@@ -114,8 +114,12 @@ its stage headers carry the ✅/⏳ status.
     bench. `rtl-sdr` pkg + DVB blacklist on the Pi stand.
     **2026-11-08 update:** Nooelec control test on the hub FAILED with the
     identical signature (PLL not locked, I std 0.930, span 123..132, FM
-    scan 1.1 dB) → **bench suspect** per the rule; do not return unit #2 or
-    buy another dongle. Isolate hub port/cable → direct Pi USB → Mac.
+    scan 1.1 dB) → **bench suspect** per the rule. Blog V3 already returned;
+    do not return the Nooelec until the Mac test. Isolate hub port/cable →
+    direct Pi USB (done) → Mac.
+    **2026-11-08 direct-Pi retest:** same failure (I std 0.927, span
+    123..132, FM 1.5 dB; 0 samples/million lost); hub ruled out, Pi USB
+    clean. Next: Mac direct; do not return the Nooelec until that test.
   - Stage 2c (GPS PA1616S): ⏳ not started.
   - Stage 3 (XIAO ESP32-S3 ×3): ✅ **2026-10-24** — all three boards
     flash-verified (MACs `b8:1f:3f:d9:28:d8` = WiFi, `44:b1:76:b0:55:68` =

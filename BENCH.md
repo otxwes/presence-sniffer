@@ -184,12 +184,17 @@ span devices). Revised posture:
   verdict FLAT. FM 88–108 scan: floor −26.1 dB, peak-median **1.1 dB**,
   verdict FLAT — the same signature as both Blog V3 units.
 - Per the control-test rule, a failed control unit points at the **bench**,
-  not the source. **Do not return unit #2 or buy another dongle.** Retest:
-  different hub port/cable, direct Pi USB-A, then Mac direct; attach the
-  telescopic antenna. Record the result before touching the return.
+  not the source. **The Blog V3 is already returned; do not return the
+  Nooelec until the Mac test.** Retest: direct Pi USB-A (done), then Mac
+  direct; attach the telescopic antenna. Record the result before touching
+  the return.
 - Same-sweep health: Pi 47.7 °C / throttled 0x0; XIAOs enumerate and feed
   (density 4); ALFA monitor active, ch6 5 frames / ch36 2 probe requests
   (ch1 simply quiet); GPS `/dev/ttyAMA0` present but gpsd inactive/unwired.
+- **2026-11-08 direct-Pi retest:** same failure (I std 0.927, span
+  123..132, FM peak-median 1.5 dB; **0 samples/million lost**). Hub ruled
+  out; Pi USB clean. Next: Mac direct (same Nooelec + antenna) — decisive
+  unit-vs-host test.
 
 3. **GPS PA1616S**: 9600 baud NMEA/UART → `gpsd`:
    `sudo apt install gpsd gpsd-clients && sudo gpsmon` — expect NMEA frames with
