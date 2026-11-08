@@ -195,6 +195,17 @@ span devices). Revised posture:
   123..132, FM peak-median 1.5 dB; **0 samples/million lost**). Hub ruled
   out; Pi USB clean. Next: Mac direct (same Nooelec + antenna) — decisive
   unit-vs-host test.
+- **Nooelec setup docs checked (2026-11-08):** Linux/Mac are plug-and-play;
+  no Zadig (Windows only), no PPM correction (0.5 ppm TCXO), no bias tee on
+  the SMArt v5 (SMArTee is the bias-tee model), and no direct-sampling mode
+  at 98 MHz (Q-branch is HF <25 MHz). The bundle antenna is a **magnetic
+  base + 2 m RG58 cable + M3 screw-on masts**; attach the base's SMA cable
+  to the Nooelec, screw in the telescopic mast, extend it, and place it near
+  a window/metal for FM. 433/UHF use their own masts. Nooelec FM guidance:
+  wide bandwidth, 88–108 MHz, FM demod. FAQ also notes the v5 USB-A
+  connector can be marginal — use a vertical/high-quality short extension
+  if needed; the direct-Pi test had 0 sample loss, so the USB link is clean
+  and the IQ rail/PLL still points at tuner/driver.
 
 3. **GPS PA1616S**: 9600 baud NMEA/UART → `gpsd`:
    `sudo apt install gpsd gpsd-clients && sudo gpsmon` — expect NMEA frames with
