@@ -18,6 +18,8 @@ from .osc_bridge import OscBridge
 from .simulator import DeviceSimulator
 from .threat import SurveillanceScorer
 from .purity import PurityCalculator
+from .sensors.rf_sensor import RfReading
+from .sensors.wifi_env import WifiEnvironment
 
 SNAPSHOT_INTERVAL = 0.5  # seconds; feeds audio/viz at 2 Hz
 
@@ -33,6 +35,9 @@ class Aggregator:
         self._seen: dict[str, PresenceEvent] = {}
         self._arrivals: list[float] = []
         self._latest: PresenceSnapshot = PresenceSnapshot()
+        self._wifi_aps: int = 0
+        self._wifi_busy: float = 0.0
+        self._rf_warmth: float = 0.0
 
     async def on_event(self, event: PresenceEvent) -> None:
         prev = self._seen.get(event.device_id)
@@ -42,6 +47,18 @@ class Aggregator:
         if self.print_events:
             print(f"[event] {event.device_class:12s} rssi={event.rssi:6.1f} "
                   f"prox={event.proximity:4.2f} id={event.device_id}", file=sys.stderr)
+
+    async def on_environment(self, env: WifiEnvironment) -> None:
+        self._wifi_aps = env.aps
+        self._wifi_busy = env.busy
+        if self.print_events:
+            print(f"[env] aps={env.aps} busy={env.busy:.1f}", file=sys.stderr)
+
+    async def on_rf(self, rf: RfReading) -> None:
+        self._rf_warmth = rf.warmth
+        if self.print_events:
+            print(f"[rf] warmth={rf.warmth:.2f} floor={rf.floor:.1f} "
+                  f"peak={rf.peak:.1f}", file=sys.stderr)
 
     def _make_snapshot(self) -> PresenceSnapshot:
         now = time.time()
@@ -61,7 +78,9 @@ class Aggregator:
 
         return PresenceSnapshot(
             ts=now, density=density, churn=churn, proximity=proximity,
-            band_balance=band_balance, rf_warmth=0.0, by_class=by_class,
+            band_balance=band_balance, rf_warmth=self._rf_warmth,
+            wifi_aps=self._wifi_aps, wifi_busy=self._wifi_busy,
+            by_class=by_class,
         )
 
     async def snapshot_loop(self) -> None:
@@ -72,7 +91,8 @@ class Aggregator:
             if self.print_events:
                 d = self._latest.to_dict()
                 print(f"[snapshot] density={d['density']} churn={d['churn']} "
-                      f"prox={d['proximity']} warmth={d['rf_warmth']}",
+                      f"prox={d['proximity']} aps={d['wifi_aps']} "
+                      f"busy={d['wifi_busy']} warmth={d['rf_warmth']}",
                       file=sys.stderr)
 
 
@@ -101,6 +121,36 @@ def build_serial_sensors(
     return sensors
 
 
+def build_environment_sensors(
+    bus: EventBus,
+    wifi_env_port: int,
+    rf_warmth: bool,
+    rf_band: str = "88M:108M:200k",
+    rf_interval: float = 2.0,
+    rf_gain: int = 42,
+) -> list:
+    """Resolve the ALFA WiFi-environment and Nooelec rf sensors."""
+    sensors = []
+    if wifi_env_port:
+        from .sensors.wifi_env import UdpWifiEnvSensor
+
+        sensors.append(UdpWifiEnvSensor(bus, port=wifi_env_port))
+    if rf_warmth:
+        from .sensors.rf_sensor import RfWarmthSensor
+
+        sensors.append(RfWarmthSensor(bus, band=rf_band,
+                                      interval=rf_interval, gain=rf_gain))
+    return sensors
+
+
+def _sensor_label(sensor) -> str:
+    if hasattr(sensor, "port"):
+        return f"{sensor.source}={sensor.port}"
+    if hasattr(sensor, "band"):
+        return f"{sensor.source}={sensor.band}"
+    return sensor.source
+
+
 async def main() -> None:
     parser = argparse.ArgumentParser(description="presence-sniffer aggregator")
     parser.add_argument("--simulator", action="store_true", help="use built-in device simulator")
@@ -117,6 +167,20 @@ async def main() -> None:
         metavar="PORT",
         help="read ESP32 BLE advert JSON from this serial port",
     )
+    parser.add_argument(
+        "--wifi-env-port",
+        type=int,
+        default=0,
+        help="listen for ALFA WiFi-environment JSON on 127.0.0.1:PORT",
+    )
+    parser.add_argument(
+        "--rf-warmth",
+        action="store_true",
+        help="run the Nooelec rtl_power rf_warmth sensor",
+    )
+    parser.add_argument("--rf-band", default="88M:108M:200k")
+    parser.add_argument("--rf-interval", type=float, default=2.0)
+    parser.add_argument("--rf-gain", type=int, default=42)
     args = parser.parse_args()
 
     logging_setup()
@@ -124,6 +188,8 @@ async def main() -> None:
     aggregator = Aggregator(bus, print_events=args.print_events)
     osc = OscBridge(host=args.osc_host, port=args.osc_port)
     bus.subscribe("event", aggregator.on_event)
+    bus.subscribe("environment", aggregator.on_environment)
+    bus.subscribe("rf", aggregator.on_rf)
     bus.subscribe("snapshot", osc.on_snapshot)
     scorer = SurveillanceScorer(bus)
     bus.subscribe("event", scorer.on_event)
@@ -168,10 +234,18 @@ async def main() -> None:
             serial_ble=args.serial_ble,
             simulator=args.simulator,
         )
+        sensors += build_environment_sensors(
+            bus,
+            wifi_env_port=args.wifi_env_port,
+            rf_warmth=args.rf_warmth,
+            rf_band=args.rf_band,
+            rf_interval=args.rf_interval,
+            rf_gain=args.rf_gain,
+        )
         if not sensors:
             print(
                 "aggregator: no sensor wired yet - run with --simulator, "
-                "--serial-wifi, or --serial-ble",
+                "--serial-wifi, --serial-ble, --wifi-env-port, or --rf-warmth",
                 file=sys.stderr,
             )
         else:
@@ -179,7 +253,7 @@ async def main() -> None:
                 tasks.append(asyncio.create_task(sensor.run()))
             print(
                 "aggregator: sensors "
-                + ", ".join(f"{s.source}={s.port}" for s in sensors),
+                + ", ".join(_sensor_label(s) for s in sensors),
                 file=sys.stderr,
             )
 

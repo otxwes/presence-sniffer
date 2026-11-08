@@ -58,6 +58,8 @@ class PresenceSnapshot:
     proximity: float = 0.0            # 0..1, proximity of the closest device
     band_balance: float = 0.0         # -1 (all wifi) .. +1 (all ble)
     rf_warmth: float = 0.0            # 0..1, SDR noise-floor above baseline (Phase 1+)
+    wifi_aps: int = 0                 # unique AP BSSIDs in the ALFA env window
+    wifi_busy: float = 0.0            # non-beacon 802.11 frames/sec (5 GHz env)
     by_class: dict[str, int] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -68,5 +70,7 @@ class PresenceSnapshot:
             "proximity": round(self.proximity, 3),
             "band_balance": round(self.band_balance, 3),
             "rf_warmth": round(self.rf_warmth, 3),
+            "wifi_aps": self.wifi_aps,
+            "wifi_busy": round(self.wifi_busy, 2),
             "by_class": self.by_class,
         }

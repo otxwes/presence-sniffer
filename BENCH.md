@@ -220,6 +220,21 @@ span devices). Revised posture:
   beacons, ch36 captured probe requests. Restart the service after
   replugging the ALFA.
 
+**Environment layers live (2026-11-08):**
+- Feed banner: `wifi-env=9998, rf=88M:108M:200k`; ALFA root capture
+  (`wifi_env`) → localhost UDP; Nooelec `rtl_power` FM scan.
+- ALFA: `aps` 4→8, `busy` 2.2→46.0 (10 s AP / 5 s frame windows); `[env]`
+  lines; snapshot includes `aps`/`busy`.
+- Nooelec: `rf_warmth` 0.49–0.50 (floor 6.2–6.4 dB, peak 18.2–18.5 dB);
+  `[rf]` lines; snapshot `warmth=0.5`.
+- BLE antenna attached: density **33–35**, prox 0.51–0.53; BLE is now the
+  dominant presence source.
+- Snapshot example: `density=35 churn=1.33 prox=0.525 aps=5 busy=18.4
+  warmth=0.5`.
+- OSC adds `/wifi_aps`, `/wifi_busy` (raw values) alongside `/rf_warmth`;
+  the Max starter patch still needs those two routes/number boxes.
+- Tests: **65 passed** in Mac `.venv` and Pi venv (11 new).
+
 3. **GPS PA1616S**: 9600 baud NMEA/UART → `gpsd`:
    `sudo apt install gpsd gpsd-clients && sudo gpsmon` — expect NMEA frames with
    lat/lon. Cold start needs a window seat and can take **5–15 min**; don't

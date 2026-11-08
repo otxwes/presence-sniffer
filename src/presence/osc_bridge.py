@@ -40,6 +40,8 @@ class OscBridge:
         self._client.send_message("/proximity", self._f(snap.proximity))
         self._client.send_message("/band_balance", max(-1.0, min(1.0, snap.band_balance)))
         self._client.send_message("/rf_warmth", self._f(snap.rf_warmth))
+        self._client.send_message("/wifi_aps", int(snap.wifi_aps))
+        self._client.send_message("/wifi_busy", max(0.0, float(snap.wifi_busy)))
         for cls, n in snap.by_class.items():
             if n:
                 self._client.send_message(f"/class/{cls}", int(n))

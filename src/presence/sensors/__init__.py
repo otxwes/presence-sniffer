@@ -8,7 +8,8 @@ from .crowd_proxy import (
     build_feature_stack,
 )
 from .wifi_sensor import WifiSensor
-from .rf_sensor import RfSensor
+from .rf_sensor import RfReading, RfSensor, RfWarmthSensor
+from .wifi_env import UdpWifiEnvSensor, WifiEnvironment
 
 __all__ = [
     "BaseSensor",
@@ -16,6 +17,10 @@ __all__ = [
     "SerialBleSensor",
     "WifiSensor",
     "RfSensor",
+    "RfReading",
+    "RfWarmthSensor",
+    "UdpWifiEnvSensor",
+    "WifiEnvironment",
     "CrowdProxySensor",
     "SignalFeatures",
     "SurveillanceContext",
